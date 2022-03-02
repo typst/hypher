@@ -1,18 +1,23 @@
+use std::collections::HashMap;
+
 /// A trie over bytes.
 pub struct Trie {
-    nodes: Vec<Node>,
+    pub root: usize,
+    pub nodes: Vec<Node>,
 }
 
 /// A node in the trie.
-struct Node {
-    trans: Vec<(u8, usize)>,
-    levels: Option<Vec<(usize, u8)>>,
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct Node {
+    pub trans: Vec<(u8, usize)>,
+    pub levels: Option<Vec<(usize, u8)>>,
 }
 
 impl Trie {
     /// Create a new trie with just the root node.
     pub fn new() -> Self {
         Self {
+            root: 0,
             nodes: vec![Node { trans: vec![], levels: None }],
         }
     }
@@ -45,6 +50,32 @@ impl Trie {
         // Mark the final address as terminating.
         self.nodes[state].levels = Some(levels);
     }
+
+    /// Perform suffix compression on the trie.
+    pub fn compress(&mut self) {
+        let mut map = HashMap::new();
+        let mut new = vec![];
+        self.root = self.compress_node(0, &mut map, &mut new);
+        self.nodes = new;
+    }
+
+    /// Recursively compress a node.
+    pub fn compress_node(
+        &self,
+        node: usize,
+        map: &mut HashMap<Node, usize>,
+        new: &mut Vec<Node>,
+    ) -> usize {
+        let mut x = self.nodes[node].clone();
+        for (_, target) in x.trans.iter_mut() {
+            *target = self.compress_node(*target, map, new);
+        }
+        *map.entry(x.clone()).or_insert_with(|| {
+            let idx = new.len();
+            new.push(x);
+            idx
+        })
+    }
 }
 
 #[derive(Copy, Clone)]
@@ -55,7 +86,7 @@ pub struct State<'a> {
 
 impl<'a> State<'a> {
     pub fn root(trie: &'a Trie) -> Self {
-        Self { trie, idx: 0 }
+        Self { trie, idx: trie.root }
     }
 
     /// Return the state reached by following the transition labelled `b`.

@@ -5,8 +5,9 @@ mod trie;
 pub fn hyphenate(word: &str) -> impl Iterator<Item = &str> {
     let mut trie = trie::Trie::new();
     tex::parse(include_str!("../patterns/hyph-en-us.tex"), |pat| {
-        trie.insert(pat)
+        trie.insert(pat);
     });
+    trie.compress();
 
     // The level between each two inner bytes of the word.
     let len = word.len().saturating_sub(1);
