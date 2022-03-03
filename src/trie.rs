@@ -4,7 +4,7 @@ use std::collections::HashMap;
 pub struct TrieBuilder {
     pub root: usize,
     pub nodes: Vec<Node>,
-    pub levels: Vec<(u8, u8)>,
+    pub levels: Vec<(usize, u8)>,
 }
 
 /// A node in the trie.
@@ -34,9 +34,7 @@ impl TrieBuilder {
         // Follow the existing transitions / add new ones.
         for b in pattern.bytes() {
             if matches!(b, b'0' ..= b'9') {
-                let d = u8::try_from(dist).expect("too high distance");
-                let v = b - b'0';
-                levels.push((d, v));
+                levels.push((dist, b - b'0'));
                 dist = 0;
             } else {
                 let len = self.nodes.len();
@@ -54,18 +52,18 @@ impl TrieBuilder {
         }
 
         // Try to reuse existing levels.
-        let mut start = 0;
-        while start < self.levels.len() && !self.levels[start ..].starts_with(&levels) {
-            start += 1;
+        let mut offset = 0;
+        while offset < self.levels.len() && !self.levels[offset ..].starts_with(&levels) {
+            offset += 1;
         }
 
         // If there was no matching "substring", we must store new levels.
-        if start == self.levels.len() {
+        if offset == self.levels.len() {
             self.levels.extend(&levels);
         }
 
         // Add levels for the final node.
-        self.nodes[state].levels = Some((start, levels.len()));
+        self.nodes[state].levels = Some((offset, levels.len()));
     }
 
     /// Perform suffix compression on the trie.
@@ -96,7 +94,8 @@ impl TrieBuilder {
 
     /// Encode the tree.
     pub fn encode(&self) -> Vec<u8> {
-        let mut addr = 4 + 2 * self.levels.len();
+        // Precompute the address of each node.
+        let mut addr = 4 + self.levels.len();
         let mut addrs = vec![];
         for node in &self.nodes {
             addrs.push(u32::try_from(addr).expect("too high address"));
@@ -107,25 +106,37 @@ impl TrieBuilder {
             addr += 5 * node.trans.len();
         }
 
-        let mut data = addrs[self.root].to_be_bytes().to_vec();
-        data.extend(self.levels.iter().flat_map(|(d, v)| [d, v]));
+        let mut data = vec![];
 
+        // Encode the root address.
+        data.extend(addrs[self.root].to_be_bytes());
+
+        // Encode the levels.
+        for &(dist, level) in &self.levels {
+            assert!(dist <= 24, "too high level distance");
+            assert!(level < 10, "too high level");
+            data.push(dist as u8 * 10 + level);
+        }
+
+        // Encode the states.
         for node in &self.nodes {
             assert!(node.trans.len() < 128);
             let has_levels = node.levels.is_some() as u8;
             let count = node.trans.len() as u8;
             data.push(has_levels << 7 | count);
 
-            if let Some((start, len)) = node.levels {
-                assert!(start < 4096, "too high level start");
+            if let Some((mut offset, len)) = node.levels {
+                offset += 4;
+
+                assert!(offset < 4096, "too high level offset");
                 assert!(len < 16, "too high level count");
 
-                let start_hi = (start >> 4) as u8;
-                let start_lo = ((start & 15) << 4) as u8;
+                let offset_hi = (offset >> 4) as u8;
+                let offset_lo = ((offset & 15) << 4) as u8;
                 let len = len as u8;
 
-                data.push(start_hi);
-                data.push(start_lo | len);
+                data.push(offset_hi);
+                data.push(offset_lo | len);
             }
 
             data.extend(&node.trans);
@@ -166,10 +177,9 @@ impl<'a> State<'a> {
         // Decode the levels.
         let mut levels: &[u8] = &[];
         if has_levels {
-            let start = usize::from(node[pos]) << 4 | usize::from(node[pos + 1]) >> 4;
+            let offset = usize::from(node[pos]) << 4 | usize::from(node[pos + 1]) >> 4;
             let len = usize::from(node[pos + 1] & 15);
-            let offset = 4 + 2 * start;
-            levels = &data[offset .. offset + 2 * len];
+            levels = &data[offset .. offset + len];
             pos += 2;
         }
 
@@ -197,9 +207,11 @@ impl<'a> State<'a> {
     /// Returns the levels contained in the state.
     pub fn levels(self) -> impl Iterator<Item = (usize, u8)> + 'a {
         let mut offset = 0;
-        self.levels.chunks_exact(2).map(move |chunk| {
-            offset += usize::from(chunk[0]);
-            (offset, chunk[1])
+        self.levels.iter().map(move |&packed| {
+            let dist = usize::from(packed / 10);
+            let level = packed % 10;
+            offset += dist;
+            (offset, level)
         })
     }
 }
