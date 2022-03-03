@@ -4,13 +4,14 @@ use std::collections::HashMap;
 pub struct Trie {
     pub root: usize,
     pub nodes: Vec<Node>,
+    pub levels: Vec<(u8, u8)>,
 }
 
 /// A node in the trie.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Node {
     pub trans: Vec<(u8, usize)>,
-    pub levels: Option<Vec<(usize, u8)>>,
+    pub levels: Option<(u16, u8)>,
 }
 
 impl Trie {
@@ -19,19 +20,23 @@ impl Trie {
         Self {
             root: 0,
             nodes: vec![Node { trans: vec![], levels: None }],
+            levels: vec![],
         }
     }
 
     /// Insert a pattern like `.a1bc2d` into the trie.
     pub fn insert(&mut self, pattern: &str) {
         let mut state = 0;
-        let mut count = 0;
+        let mut dist = 0;
         let mut levels = vec![];
 
         // Follow the existing transitions / add new ones.
         for b in pattern.bytes() {
             if matches!(b, b'0' ..= b'9') {
-                levels.push((count, b - b'0'));
+                let d = u8::try_from(dist).expect("too high distance");
+                let v = b - b'0';
+                levels.push((d, v));
+                dist = 0;
             } else {
                 if let Some(&(_, target)) =
                     self.nodes[state].trans.iter().find(|&&(x, _)| x == b)
@@ -43,12 +48,25 @@ impl Trie {
                     self.nodes.push(Node { trans: vec![], levels: None });
                     state = new;
                 }
-                count += 1;
+                dist += 1;
             }
         }
 
-        // Mark the final address as terminating.
-        self.nodes[state].levels = Some(levels);
+        // Try to reuse existing levels.
+        let mut offset = 0;
+        while offset < self.levels.len() && !self.levels[offset ..].starts_with(&levels) {
+            offset += 1;
+        }
+
+        // If there was no matching "substring", we must store new levels.
+        if offset == self.levels.len() {
+            self.levels.extend(&levels);
+        }
+
+        // Add levels for the final node.
+        let offset = u16::try_from(offset).expect("too high offset");
+        let len = u8::try_from(levels.len()).expect("too many levels");
+        self.nodes[state].levels = Some((offset, len));
     }
 
     /// Perform suffix compression on the trie.
@@ -101,7 +119,18 @@ impl<'a> State<'a> {
 
     /// Returns the levels contained in the state.
     pub fn levels(self) -> impl Iterator<Item = (usize, u8)> + 'a {
+        let mut offset = 0;
         let node = &self.trie.nodes[self.idx];
-        node.levels.iter().flat_map(|levels| levels).copied()
+        node.levels
+            .iter()
+            .flat_map(|&(offset, len)| {
+                let start = usize::from(offset);
+                let end = start + usize::from(len);
+                &self.trie.levels[start .. end]
+            })
+            .map(move |&(d, v)| {
+                offset += usize::from(d);
+                (offset, v)
+            })
     }
 }
