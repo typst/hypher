@@ -102,20 +102,25 @@ impl TrieBuilder {
         let mut addrs = vec![];
         for node in &self.nodes {
             addrs.push(u32::try_from(addr).expect("too high address"));
-            addr += 4 + 5 * node.trans.len();
+            addr += 1;
+            if node.levels.is_some() {
+                addr += 3;
+            }
+            addr += 5 * node.trans.len();
         }
 
         let mut data = addrs[self.root].to_be_bytes().to_vec();
         data.extend(self.levels.iter().flat_map(|(d, v)| [d, v]));
 
         for node in &self.nodes {
-            data.push(node.trans.len() as u8);
+            assert!(node.trans.len() < 128);
+            let has_levels = node.levels.is_some() as u8;
+            let count = node.trans.len() as u8;
+            data.push(has_levels << 7 | count);
 
             if let Some((offset, len)) = node.levels {
                 data.extend(offset.to_be_bytes());
                 data.push(len);
-            } else {
-                data.extend([0, 0, 0]);
             }
 
             data.extend(&node.trans);
@@ -148,18 +153,20 @@ impl<'a> State<'a> {
         let node = &data[addr ..];
         let mut pos = 0;
 
-        // Decode the transition count.
-        let count = usize::from(node[pos]);
+        // Decode whether the state has levels and the transition count.
+        let has_levels = node[pos] >> 7 != 0;
+        let count = usize::from(node[pos] & 127);
         pos += 1;
 
         // Decode the levels.
-        let levels = {
+        let mut levels: &[u8] = &[];
+        if has_levels {
             let bytes = node[pos .. pos + 2].try_into().unwrap();
             let offset = 4 + 2 * usize::from(u16::from_be_bytes(bytes));
             let len = 2 * usize::from(node[pos + 2]);
+            levels = &data[offset .. offset + len];
             pos += 3;
-            &data[offset .. offset + len]
-        };
+        }
 
         // Decode the transitions.
         let trans = &node[pos .. pos + count];
