@@ -16,7 +16,7 @@ pub fn hyphenate(word: &str) -> impl Iterator<Item = &str> {
     // Start pattern matching at each character boundary.
     let dotted = format!(".{}.", word.to_ascii_lowercase());
     for (start, _) in dotted.char_indices() {
-        let mut state = trie::State::start(&trie);
+        let mut state = trie::State::root(&trie);
         for b in dotted[start ..].bytes() {
             if let Some(next) = state.transition(b) {
                 state = next;

@@ -126,43 +126,68 @@ impl TrieBuilder {
     }
 }
 
+/// A state in a trie traversal.
 #[derive(Copy, Clone)]
 pub struct State<'a> {
     data: &'a [u8],
-    addr: usize,
+    levels: &'a [u8],
+    trans: &'a [u8],
+    targets: &'a [u8],
 }
 
 impl<'a> State<'a> {
-    pub fn start(data: &'a [u8]) -> Self {
+    /// Create a new state at the root node.
+    pub fn root(data: &'a [u8]) -> Self {
         let bytes = data[.. 4].try_into().unwrap();
         let addr = u32::from_be_bytes(bytes) as usize;
-        Self { data, addr }
+        Self::at(data, addr)
+    }
+
+    /// Create a new state at the given node address.
+    pub fn at(data: &'a [u8], addr: usize) -> Self {
+        let node = &data[addr ..];
+        let mut pos = 0;
+
+        // Decode the transition count.
+        let count = usize::from(node[pos]);
+        pos += 1;
+
+        // Decode the levels.
+        let levels = {
+            let bytes = node[pos .. pos + 2].try_into().unwrap();
+            let offset = 4 + 2 * usize::from(u16::from_be_bytes(bytes));
+            let len = 2 * usize::from(node[pos + 2]);
+            pos += 3;
+            &data[offset .. offset + len]
+        };
+
+        // Decode the transitions.
+        let trans = &node[pos .. pos + count];
+        pos += count;
+
+        // Decode the targets.
+        let targets = &node[pos .. pos + 4 * count];
+
+        Self { data, levels, trans, targets }
     }
 
     /// Return the state reached by following the transition labelled `b`.
     /// Returns `None` if there is no such state.
     pub fn transition(self, b: u8) -> Option<Self> {
-        let node = &self.data[self.addr ..];
-        let count = usize::from(node[0]);
-        node[4 .. 4 + count].iter().position(|&x| x == b).map(|idx| {
-            let offset = 4 + count + 4 * idx;
-            let bytes = node[offset .. offset + 4].try_into().unwrap();
+        self.trans.iter().position(|&x| x == b).map(|idx| {
+            let offset = 4 * idx;
+            let bytes = self.targets[offset .. offset + 4].try_into().unwrap();
             let next = u32::from_be_bytes(bytes) as usize;
-            Self { data: self.data, addr: next }
+            Self::at(self.data, next)
         })
     }
 
     /// Returns the levels contained in the state.
     pub fn levels(self) -> impl Iterator<Item = (usize, u8)> + 'a {
-        let node = &self.data[self.addr ..];
-        let bytes = node[1 .. 3].try_into().unwrap();
-        let offset = 4 + 2 * usize::from(u16::from_be_bytes(bytes));
-        let len = 2 * usize::from(node[3]);
-        let levels = &self.data[offset .. offset + len];
-        let mut seen = 0;
-        levels.chunks_exact(2).map(move |chunk| {
-            seen += usize::from(chunk[0]);
-            (seen, chunk[1])
+        let mut offset = 0;
+        self.levels.chunks_exact(2).map(move |chunk| {
+            offset += usize::from(chunk[0]);
+            (offset, chunk[1])
         })
     }
 }
