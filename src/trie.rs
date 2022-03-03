@@ -8,9 +8,10 @@ pub struct Trie {
 }
 
 /// A node in the trie.
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Default, Clone, PartialEq, Eq, Hash)]
 pub struct Node {
-    pub trans: Vec<(u8, usize)>,
+    pub trans: Vec<u8>,
+    pub targets: Vec<usize>,
     pub levels: Option<(u16, u8)>,
 }
 
@@ -19,7 +20,7 @@ impl Trie {
     pub fn new() -> Self {
         Self {
             root: 0,
-            nodes: vec![Node { trans: vec![], levels: None }],
+            nodes: vec![Node::default()],
             levels: vec![],
         }
     }
@@ -38,15 +39,15 @@ impl Trie {
                 levels.push((d, v));
                 dist = 0;
             } else {
-                if let Some(&(_, target)) =
-                    self.nodes[state].trans.iter().find(|&&(x, _)| x == b)
-                {
-                    state = target;
+                let len = self.nodes.len();
+                let node = &mut self.nodes[state];
+                if let Some(i) = node.trans.iter().position(|&x| x == b) {
+                    state = node.targets[i];
                 } else {
-                    let new = self.nodes.len();
-                    self.nodes[state].trans.push((b, new));
-                    self.nodes.push(Node { trans: vec![], levels: None });
-                    state = new;
+                    node.trans.push(b);
+                    node.targets.push(len);
+                    state = len;
+                    self.nodes.push(Node::default());
                 }
                 dist += 1;
             }
@@ -85,7 +86,7 @@ impl Trie {
         new: &mut Vec<Node>,
     ) -> usize {
         let mut x = self.nodes[node].clone();
-        for (_, target) in x.trans.iter_mut() {
+        for target in x.targets.iter_mut() {
             *target = self.compress_node(*target, map, new);
         }
         *map.entry(x.clone()).or_insert_with(|| {
@@ -113,8 +114,8 @@ impl<'a> State<'a> {
         let node = &self.trie.nodes[self.idx];
         node.trans
             .iter()
-            .find(|&&(x, _)| x == b)
-            .map(|&(_, target)| Self { trie: self.trie, idx: target })
+            .position(|&x| x == b)
+            .map(|i| Self { trie: self.trie, idx: node.targets[i] })
     }
 
     /// Returns the levels contained in the state.
