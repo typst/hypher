@@ -65,13 +65,13 @@ mod tests {
         for entry in std::fs::read_dir("patterns").unwrap() {
             let entry = entry.unwrap();
             let path = entry.path();
+            println!("===========================");
+            println!("{}", path.display());
             let tex = std::fs::read_to_string(&path).unwrap();
             let mut builder = trie::TrieBuilder::new();
             tex::parse(&tex, |pat| builder.insert(pat));
             builder.compress();
             let trie = builder.encode();
-            println!("===========================");
-            println!("{}", path.display());
             println!("  Pattern size: {} byte", tex.len());
             println!("  Trie size:    {} byte", trie.len());
             println!();

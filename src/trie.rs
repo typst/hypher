@@ -12,7 +12,7 @@ pub struct TrieBuilder {
 pub struct Node {
     pub trans: Vec<u8>,
     pub targets: Vec<usize>,
-    pub levels: Option<(u16, u8)>,
+    pub levels: Option<(usize, usize)>,
 }
 
 impl TrieBuilder {
@@ -54,20 +54,18 @@ impl TrieBuilder {
         }
 
         // Try to reuse existing levels.
-        let mut offset = 0;
-        while offset < self.levels.len() && !self.levels[offset ..].starts_with(&levels) {
-            offset += 1;
+        let mut start = 0;
+        while start < self.levels.len() && !self.levels[start ..].starts_with(&levels) {
+            start += 1;
         }
 
         // If there was no matching "substring", we must store new levels.
-        if offset == self.levels.len() {
+        if start == self.levels.len() {
             self.levels.extend(&levels);
         }
 
         // Add levels for the final node.
-        let offset = u16::try_from(offset).expect("too high offset");
-        let len = u8::try_from(levels.len()).expect("too many levels");
-        self.nodes[state].levels = Some((offset, len));
+        self.nodes[state].levels = Some((start, levels.len()));
     }
 
     /// Perform suffix compression on the trie.
@@ -104,7 +102,7 @@ impl TrieBuilder {
             addrs.push(u32::try_from(addr).expect("too high address"));
             addr += 1;
             if node.levels.is_some() {
-                addr += 3;
+                addr += 2;
             }
             addr += 5 * node.trans.len();
         }
@@ -118,9 +116,16 @@ impl TrieBuilder {
             let count = node.trans.len() as u8;
             data.push(has_levels << 7 | count);
 
-            if let Some((offset, len)) = node.levels {
-                data.extend(offset.to_be_bytes());
-                data.push(len);
+            if let Some((start, len)) = node.levels {
+                assert!(start < 4096, "too high level start");
+                assert!(len < 16, "too high level count");
+
+                let start_hi = (start >> 4) as u8;
+                let start_lo = ((start & 15) << 4) as u8;
+                let len = len as u8;
+
+                data.push(start_hi);
+                data.push(start_lo | len);
             }
 
             data.extend(&node.trans);
@@ -161,11 +166,11 @@ impl<'a> State<'a> {
         // Decode the levels.
         let mut levels: &[u8] = &[];
         if has_levels {
-            let bytes = node[pos .. pos + 2].try_into().unwrap();
-            let offset = 4 + 2 * usize::from(u16::from_be_bytes(bytes));
-            let len = 2 * usize::from(node[pos + 2]);
-            levels = &data[offset .. offset + len];
-            pos += 3;
+            let start = usize::from(node[pos]) << 4 | usize::from(node[pos + 1]) >> 4;
+            let len = usize::from(node[pos + 1] & 15);
+            let offset = 4 + 2 * start;
+            levels = &data[offset .. offset + 2 * len];
+            pos += 2;
         }
 
         // Decode the transitions.
