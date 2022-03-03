@@ -3,11 +3,11 @@ mod trie;
 
 /// Segment a word into syllables.
 pub fn hyphenate(word: &str) -> impl Iterator<Item = &str> {
-    let mut trie = trie::Trie::new();
-    tex::parse(include_str!("../patterns/hyph-en-us.tex"), |pat| {
-        trie.insert(pat);
-    });
-    trie.compress();
+    let mut builder = trie::TrieBuilder::new();
+    let patterns = include_str!("../patterns/hyph-en-us.tex");
+    tex::parse(patterns, |pat| builder.insert(pat));
+    builder.compress();
+    let trie = builder.encode();
 
     // The level between each two inner bytes of the word.
     let len = word.len().saturating_sub(1);
@@ -16,7 +16,7 @@ pub fn hyphenate(word: &str) -> impl Iterator<Item = &str> {
     // Start pattern matching at each character boundary.
     let dotted = format!(".{}.", word.to_ascii_lowercase());
     for (start, _) in dotted.char_indices() {
-        let mut state = trie::State::root(&trie);
+        let mut state = trie::State::start(&trie);
         for b in dotted[start ..].bytes() {
             if let Some(next) = state.transition(b) {
                 state = next;
@@ -51,13 +51,31 @@ pub fn hyphenate(word: &str) -> impl Iterator<Item = &str> {
 
 #[cfg(test)]
 mod tests {
-    use super::hyphenate;
+    use super::*;
 
     fn test(hyphenated: &str) {
         let word = hyphenated.replace('-', "");
         let parts = hyphenate(&word).collect::<Vec<_>>();
         let joined = parts.join("-");
         assert_eq!(joined, hyphenated);
+    }
+
+    #[test]
+    fn test_stats() {
+        for entry in std::fs::read_dir("patterns").unwrap() {
+            let entry = entry.unwrap();
+            let path = entry.path();
+            let tex = std::fs::read_to_string(&path).unwrap();
+            let mut builder = trie::TrieBuilder::new();
+            tex::parse(&tex, |pat| builder.insert(pat));
+            builder.compress();
+            let trie = builder.encode();
+            println!("===========================");
+            println!("{}", path.display());
+            println!("  Pattern size: {} byte", tex.len());
+            println!("  Trie size:    {} byte", trie.len());
+            println!();
+        }
     }
 
     #[test]

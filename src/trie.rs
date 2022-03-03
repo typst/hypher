@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
-/// A trie over bytes.
-pub struct Trie {
+/// Builds a trie from patterns.
+pub struct TrieBuilder {
     pub root: usize,
     pub nodes: Vec<Node>,
     pub levels: Vec<(u8, u8)>,
@@ -15,7 +15,7 @@ pub struct Node {
     pub levels: Option<(u16, u8)>,
 }
 
-impl Trie {
+impl TrieBuilder {
     /// Create a new trie with just the root node.
     pub fn new() -> Self {
         Self {
@@ -79,7 +79,7 @@ impl Trie {
     }
 
     /// Recursively compress a node.
-    pub fn compress_node(
+    fn compress_node(
         &self,
         node: usize,
         map: &mut HashMap<Node, usize>,
@@ -95,43 +95,74 @@ impl Trie {
             idx
         })
     }
+
+    /// Encode the tree.
+    pub fn encode(&self) -> Vec<u8> {
+        let mut addr = 4 + 2 * self.levels.len();
+        let mut addrs = vec![];
+        for node in &self.nodes {
+            addrs.push(u32::try_from(addr).expect("too high address"));
+            addr += 4 + 5 * node.trans.len();
+        }
+
+        let mut data = addrs[self.root].to_be_bytes().to_vec();
+        data.extend(self.levels.iter().flat_map(|(d, v)| [d, v]));
+
+        for node in &self.nodes {
+            data.push(node.trans.len() as u8);
+
+            if let Some((offset, len)) = node.levels {
+                data.extend(offset.to_be_bytes());
+                data.push(len);
+            } else {
+                data.extend([0, 0, 0]);
+            }
+
+            data.extend(&node.trans);
+            data.extend(node.targets.iter().flat_map(|&idx| addrs[idx].to_be_bytes()));
+        }
+
+        data
+    }
 }
 
 #[derive(Copy, Clone)]
 pub struct State<'a> {
-    trie: &'a Trie,
-    idx: usize,
+    data: &'a [u8],
+    addr: usize,
 }
 
 impl<'a> State<'a> {
-    pub fn root(trie: &'a Trie) -> Self {
-        Self { trie, idx: trie.root }
+    pub fn start(data: &'a [u8]) -> Self {
+        let bytes = data[.. 4].try_into().unwrap();
+        let addr = u32::from_be_bytes(bytes) as usize;
+        Self { data, addr }
     }
 
     /// Return the state reached by following the transition labelled `b`.
     /// Returns `None` if there is no such state.
     pub fn transition(self, b: u8) -> Option<Self> {
-        let node = &self.trie.nodes[self.idx];
-        node.trans
-            .iter()
-            .position(|&x| x == b)
-            .map(|i| Self { trie: self.trie, idx: node.targets[i] })
+        let node = &self.data[self.addr ..];
+        let count = usize::from(node[0]);
+        node[4 .. 4 + count].iter().position(|&x| x == b).map(|idx| {
+            let offset = 4 + count + 4 * idx;
+            let bytes = node[offset .. offset + 4].try_into().unwrap();
+            let next = u32::from_be_bytes(bytes) as usize;
+            Self { data: self.data, addr: next }
+        })
     }
 
     /// Returns the levels contained in the state.
     pub fn levels(self) -> impl Iterator<Item = (usize, u8)> + 'a {
-        let mut offset = 0;
-        let node = &self.trie.nodes[self.idx];
-        node.levels
-            .iter()
-            .flat_map(|&(offset, len)| {
-                let start = usize::from(offset);
-                let end = start + usize::from(len);
-                &self.trie.levels[start .. end]
-            })
-            .map(move |&(d, v)| {
-                offset += usize::from(d);
-                (offset, v)
-            })
+        let node = &self.data[self.addr ..];
+        let bytes = node[1 .. 3].try_into().unwrap();
+        let offset = 4 + 2 * usize::from(u16::from_be_bytes(bytes));
+        let len = 2 * usize::from(node[3]);
+        let levels = &self.data[offset .. offset + len];
+        let mut seen = 0;
+        levels.chunks_exact(2).map(move |chunk| {
+            seen += usize::from(chunk[0]);
+            (seen, chunk[1])
+        })
     }
 }
