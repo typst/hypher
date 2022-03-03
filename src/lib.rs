@@ -62,20 +62,41 @@ mod tests {
 
     #[test]
     fn test_stats() {
+        let mut pat_sum = 0;
+        let mut trie_sum = 0;
+
         for entry in std::fs::read_dir("patterns").unwrap() {
             let entry = entry.unwrap();
             let path = entry.path();
-            println!("===========================");
+            println!("---------------------------");
             println!("{}", path.display());
-            let tex = std::fs::read_to_string(&path).unwrap();
+
             let mut builder = trie::TrieBuilder::new();
+            let tex = std::fs::read_to_string(&path).unwrap();
             tex::parse(&tex, |pat| builder.insert(pat));
             builder.compress();
             let trie = builder.encode();
+
+            pat_sum += tex.len();
+            trie_sum += trie.len();
+
             println!("  Pattern size: {} byte", tex.len());
             println!("  Trie size:    {} byte", trie.len());
+            println!(
+                "  Percentage:   {:.0}%",
+                100.0 * (trie.len() as f64 / tex.len() as f64),
+            );
             println!();
         }
+
+        println!("===========================");
+        println!("Total pattern size: {pat_sum} byte");
+        println!("Total tries size:   {trie_sum} byte");
+        println!(
+            "Percentage:         {:.0}%",
+            100.0 * (trie_sum as f64 / pat_sum as f64),
+        );
+        println!();
     }
 
     #[test]

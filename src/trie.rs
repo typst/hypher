@@ -57,7 +57,8 @@ impl TrieBuilder {
             offset += 1;
         }
 
-        // If there was no matching "substring", we must store new levels.
+        // If there was no matching level "substring", we must append the new
+        // levels at the end.
         if offset == self.levels.len() {
             self.levels.extend(&levels);
         }
@@ -94,22 +95,47 @@ impl TrieBuilder {
 
     /// Encode the tree.
     pub fn encode(&self) -> Vec<u8> {
-        // Precompute the address of each node.
-        let mut addr = 4 + self.levels.len();
-        let mut addrs = vec![];
+        let start = 4 + self.levels.len();
+
+        // Compute an address estimate for each node. We can't know the final
+        // addresses yet because the addresses depend on the stride of each
+        // target list and that stride of the target lists depends on the
+        // addresses.
+        let mut addr = start;
+        let mut estimates = vec![];
         for node in &self.nodes {
-            addrs.push(u32::try_from(addr).expect("too high address"));
-            addr += 1;
-            if node.levels.is_some() {
-                addr += 2;
-            }
-            addr += 5 * node.trans.len();
+            estimates.push(addr);
+            addr += 1
+                + ((node.trans.len() >= 31) as usize)
+                + 2 * (node.levels.is_some() as usize)
+                + (1 + 3) * node.trans.len();
+        }
+
+        // Use the address estimates to determine how many bytes to use for each
+        // state and compute the final addresses.
+        let mut addr = start;
+        let mut addrs = vec![];
+        let mut strides = vec![];
+        for (i, node) in self.nodes.iter().enumerate() {
+            let stride = node
+                .targets
+                .iter()
+                .map(|&t| how_many_bytes(estimates[t] as isize - estimates[i] as isize))
+                .max()
+                .unwrap_or(1);
+
+            addrs.push(addr);
+            strides.push(stride);
+            addr += 1
+                + ((node.trans.len() >= 31) as usize)
+                + 2 * (node.levels.is_some() as usize)
+                + (1 + stride) * node.trans.len();
         }
 
         let mut data = vec![];
 
         // Encode the root address.
-        data.extend(addrs[self.root].to_be_bytes());
+        data.extend(u32::try_from(addrs[self.root] as u32).unwrap().to_be_bytes());
 
         // Encode the levels.
         for &(dist, level) in &self.levels {
@@ -118,15 +144,20 @@ impl TrieBuilder {
             data.push(dist as u8 * 10 + level);
         }
 
-        // Encode the states.
-        for node in &self.nodes {
-            assert!(node.trans.len() < 128);
-            let has_levels = node.levels.is_some() as u8;
-            let count = node.trans.len() as u8;
-            data.push(has_levels << 7 | count);
+        // Encode the nodes.
+        for ((node, &addr), stride) in self.nodes.iter().zip(&addrs).zip(strides) {
+            data.push(
+                (node.levels.is_some() as u8) << 7
+                    | (stride as u8) << 5
+                    | (node.trans.len().min(31) as u8),
+            );
 
-            if let Some((mut offset, len)) = node.levels {
-                offset += 4;
+            if node.trans.len() >= 31 {
+                data.push(u8::try_from(node.trans.len()).expect("too many transitions"));
+            }
+
+            if let Some((offset, len)) = node.levels {
+                let offset = 4 + offset;
 
                 assert!(offset < 4096, "too high level offset");
                 assert!(len < 16, "too high level count");
@@ -140,7 +171,11 @@ impl TrieBuilder {
             }
 
             data.extend(&node.trans);
-            data.extend(node.targets.iter().flat_map(|&idx| addrs[idx].to_be_bytes()));
+
+            for &target in &node.targets {
+                let delta = addrs[target] as isize - addr as isize;
+                to_be_bytes(&mut data, delta, stride);
+            }
         }
 
         data
@@ -151,6 +186,8 @@ impl TrieBuilder {
 #[derive(Copy, Clone)]
 pub struct State<'a> {
     data: &'a [u8],
+    addr: usize,
+    stride: usize,
     levels: &'a [u8],
     trans: &'a [u8],
     targets: &'a [u8],
@@ -171,13 +208,22 @@ impl<'a> State<'a> {
 
         // Decode whether the state has levels and the transition count.
         let has_levels = node[pos] >> 7 != 0;
-        let count = usize::from(node[pos] & 127);
+        let stride = usize::from((node[pos] >> 5) & 3);
+        let mut count = usize::from(node[pos] & 31);
         pos += 1;
+
+        // Possibly decode high transition count.
+        if count == 31 {
+            count = usize::from(node[pos]);
+            pos += 1;
+        }
 
         // Decode the levels.
         let mut levels: &[u8] = &[];
         if has_levels {
-            let offset = usize::from(node[pos]) << 4 | usize::from(node[pos + 1]) >> 4;
+            let offset_hi = usize::from(node[pos]) << 4;
+            let offset_lo = usize::from(node[pos + 1]) >> 4;
+            let offset = offset_hi | offset_lo;
             let len = usize::from(node[pos + 1] & 15);
             levels = &data[offset .. offset + len];
             pos += 2;
@@ -188,18 +234,25 @@ impl<'a> State<'a> {
         pos += count;
 
         // Decode the targets.
-        let targets = &node[pos .. pos + 4 * count];
+        let targets = &node[pos .. pos + stride * count];
 
-        Self { data, levels, trans, targets }
+        Self {
+            data,
+            addr,
+            stride,
+            levels,
+            trans,
+            targets,
+        }
     }
 
     /// Return the state reached by following the transition labelled `b`.
     /// Returns `None` if there is no such state.
     pub fn transition(self, b: u8) -> Option<Self> {
         self.trans.iter().position(|&x| x == b).map(|idx| {
-            let offset = 4 * idx;
-            let bytes = self.targets[offset .. offset + 4].try_into().unwrap();
-            let next = u32::from_be_bytes(bytes) as usize;
+            let offset = self.stride * idx;
+            let delta = from_be_bytes(&self.targets[offset .. offset + self.stride]);
+            let next = (self.addr as isize + delta) as usize;
             Self::at(self.data, next)
         })
     }
@@ -213,5 +266,51 @@ impl<'a> State<'a> {
             offset += dist;
             (offset, level)
         })
+    }
+}
+
+/// How many bytes are needed to encode a signed number.
+fn how_many_bytes(num: isize) -> usize {
+    if i8::try_from(num).is_ok() {
+        1
+    } else if i16::try_from(num).is_ok() {
+        2
+    } else if -(1 << 23) <= num && num < (1 << 23) {
+        3
+    } else {
+        panic!("too large number");
+    }
+}
+
+/// Encode a signed number with 1, 2 or 3 bytes.
+fn to_be_bytes(buf: &mut Vec<u8>, num: isize, stride: usize) {
+    if stride == 1 {
+        buf.extend(i8::try_from(num).unwrap().to_be_bytes());
+    } else if stride == 2 {
+        buf.extend(i16::try_from(num).unwrap().to_be_bytes());
+    } else if stride == 3 {
+        let unsigned = (num + (1 << 23)) as usize;
+        buf.push((unsigned >> 16) as u8);
+        buf.push((unsigned >> 8) as u8);
+        buf.push(unsigned as u8);
+    } else {
+        panic!("invalid stride");
+    }
+}
+
+/// Decode a signed number with 1, 2 or 3 bytes.
+fn from_be_bytes(buf: &[u8]) -> isize {
+    if let Ok(array) = buf.try_into() {
+        i8::from_be_bytes(array) as isize
+    } else if let Ok(array) = buf.try_into() {
+        i16::from_be_bytes(array) as isize
+    } else if buf.len() == 3 {
+        let first = usize::from(buf[0]) << 16;
+        let second = usize::from(buf[1]) << 8;
+        let third = usize::from(buf[2]);
+        let unsigned = first | second | third;
+        unsigned as isize - (1 << 23)
+    } else {
+        panic!("invalid stride");
     }
 }
