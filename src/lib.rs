@@ -16,22 +16,70 @@
 //! assert_eq!(syllables.join("-"), "ex-ten-sive");
 //! ```
 
+// Include language data.
+include!(concat!(env!("OUT_DIR"), "/langs.rs"));
+
 /// Segment a word into syllables.
+///
+/// Returns an iterator over the syllables.
+/// ```
+/// # use hypher::{hyphenate, Lang};
+/// let mut syllables = hyphenate("extensive", Lang::English);
+/// assert_eq!(syllables.next(), Some("ex"));
+/// assert_eq!(syllables.next(), Some("ten"));
+/// assert_eq!(syllables.next(), Some("sive"));
+/// assert_eq!(syllables.next(), None);
+/// # assert_eq!(syllables.next(), None);
+/// ```
+///
+/// This uses the default bounds for the language.
 pub fn hyphenate(word: &str, lang: Lang) -> Syllables<'_> {
+    let (left_min, right_min) = lang.bounds();
+    hyphenate_with_bounds(word, lang, left_min, right_min)
+}
+
+/// Segment a word into syllables, but forbid breaking betwen the given number
+/// of chars to each side.
+pub fn hyphenate_with_bounds(
+    word: &str,
+    lang: Lang,
+    left_min: usize,
+    right_min: usize,
+) -> Syllables<'_> {
+    // Initialize the trie state for the language.
+    let root = lang.root();
+
+    // It makes no sense to split outside the word.
+    let left_min = left_min.max(1);
+    let right_min = right_min.max(1);
+
+    // Convert from chars to byte indices in the dotted word.
+    let min_idx = 1 + word.chars().take(left_min).map(char::len_utf8).sum::<usize>();
+    let max_idx = 1 + word.len()
+        - word.chars().rev().take(right_min).map(char::len_utf8).sum::<usize>();
+
+    // Add a dot to each side to enable patterns that match based on whether
+    // they are at the edges of the word.
+    let dotted = format!(".{}.", word.to_ascii_lowercase());
+
     // The level between each two inner bytes of the word.
     let len = word.len().saturating_sub(1);
     let mut levels = vec![0; len];
 
     // Start pattern matching at each character boundary.
-    let dotted = format!(".{}.", word.to_ascii_lowercase());
     for (start, _) in dotted.char_indices() {
-        let mut state = lang.root();
+        let mut state = root;
         for b in dotted[start ..].bytes() {
             if let Some(next) = state.transition(b) {
                 state = next;
                 for (offset, level) in state.levels() {
                     let split = start + offset;
-                    if split > 2 && split < dotted.len() - 2 {
+
+                    // Example
+                    //
+                    // Dotted: . h e l l o .
+                    // Levels:    0 2 3 0
+                    if split >= min_idx && split <= max_idx {
                         let slot = &mut levels[split - 2];
                         *slot = (*slot).max(level);
                     }
@@ -43,10 +91,9 @@ pub fn hyphenate(word: &str, lang: Lang) -> Syllables<'_> {
     }
 
     // Break into segments at odd levels.
-    // TODO: Left and right min hyphen
     Syllables {
         word,
-        start: 0,
+        cursor: 0,
         levels: levels.into_iter(),
     }
 }
@@ -54,10 +101,10 @@ pub fn hyphenate(word: &str, lang: Lang) -> Syllables<'_> {
 /// An iterator over the syllables of a word.
 ///
 /// This struct is created by [`hyphenate`].
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct Syllables<'a> {
     word: &'a str,
-    start: usize,
+    cursor: usize,
     levels: std::vec::IntoIter<u8>,
 }
 
@@ -73,8 +120,8 @@ impl Syllables<'_> {
     /// # assert_eq!(joined, "won\u{ad}der\u{ad}ful")
     /// ```
     pub fn join(mut self, sep: &str) -> String {
-        let count = self.levels.as_slice().iter().filter(|&lvl| lvl % 2 == 1).count();
-        let mut s = String::with_capacity(self.word.len() + count * sep.len());
+        let extra = self.splits() * sep.len();
+        let mut s = String::with_capacity(self.word.len() + extra);
         s.extend(self.next());
         for syllable in self {
             s.push_str(sep);
@@ -82,22 +129,33 @@ impl Syllables<'_> {
         }
         s
     }
+
+    /// The remaining number of splits in the word.
+    fn splits(&self) -> usize {
+        self.levels.as_slice().iter().filter(|&lvl| lvl % 2 == 1).count()
+    }
 }
 
 impl<'a> Iterator for Syllables<'a> {
     type Item = &'a str;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let found = self.levels.find(|lvl| lvl % 2 == 1).is_some();
-        let start = self.start;
+        let found = self.levels.any(|lvl| lvl % 2 == 1);
+        let start = self.cursor;
         let end = self.word.len() - self.levels.len() - found as usize;
-        self.start = end;
+        self.cursor = end;
         (start < end).then(|| &self.word[start .. end])
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let len = if self.word.is_empty() { 0 } else { 1 + self.splits() };
+        (len, Some(len))
     }
 }
 
-// Include language data.
-include!(concat!(env!("OUT_DIR"), "/langs.rs"));
+impl ExactSizeIterator for Syllables<'_> {}
+
+impl std::iter::FusedIterator for Syllables<'_> {}
 
 /// A state in a trie traversal.
 #[derive(Copy, Clone)]
@@ -215,23 +273,36 @@ mod tests {
     }
 
     #[test]
+    fn test_empty() {
+        let mut syllables = hyphenate("", Lang::English);
+        assert_eq!(syllables.next(), None);
+    }
+
+    #[test]
+    fn test_exact() {
+        assert_eq!(hyphenate("", Lang::English).len(), 0);
+        assert_eq!(hyphenate("hello", Lang::English).len(), 1);
+        assert_eq!(hyphenate("extensive", Lang::English).len(), 3);
+    }
+
+    #[test]
     fn test_english() {
+        test(English, "");
         test(English, "hi");
-        test(English, "hel-lo");
         test(English, "wel-come");
         test(English, "walk-ing");
         test(English, "cap-tiVe");
         test(English, "pur-sue");
-        test(English, "wHaT-eV-eR");
+        test(English, "wHaT-eVeR");
         test(English, "bro-ken");
         test(English, "ex-ten-sive");
-        test(English, "Prob-a-bil-i-ty");
-        test(English, "col-or");
+        test(English, "Prob-a-bil-ity");
         test(English, "rec-og-nize");
     }
 
     #[test]
     fn test_german() {
+        test(German, "");
         test(German, "Baum");
         test(German, "ge-hen");
         test(German, "Ap-fel");

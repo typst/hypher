@@ -7,7 +7,7 @@ use std::path::{Path, PathBuf};
 fn main() -> io::Result<()> {
     println!("cargo:rerun-if-changed=build.rs");
 
-    let languages = [
+    let mut languages = [
         ("Afrikaans", "af", "Latn", "hyph-af.tex", 1, 2),
         ("Belarusian", "be", "Cyrl", "hyph-be.tex", 2, 2),
         ("Bulgarian", "bg", "Cyrl", "hyph-bg.tex", 2, 2),
@@ -42,6 +42,8 @@ fn main() -> io::Result<()> {
         ("Ukrainian", "uk", "Cyrl", "hyph-uk.tex", 2, 2),
     ];
 
+    languages.sort();
+
     let out = PathBuf::from(env::var_os("OUT_DIR").unwrap());
 
     // Build the tries.
@@ -58,16 +60,14 @@ fn main() -> io::Result<()> {
     let file = File::create(out.join("langs.rs"))?;
     let mut w = BufWriter::new(file);
 
-    writeln!(
-        w,
-        "/// A language you can hyphenate in.
-        ///
-        /// Lists for each language also the ISO 639-1 two letter
-        /// language code and the ISO 15924 four letter script code.
-        #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
-        #[non_exhaustive]
-        pub enum Lang {{"
-    )?;
+    writeln!(w, "/// A language you can hyphenate in.")?;
+    writeln!(w, "///")?;
+    writeln!(w, "/// Lists for each language also the ISO 639-1 two")?;
+    writeln!(w, "/// letter language code and the ISO 15924 four letter")?;
+    writeln!(w, "/// script code.")?;
+    writeln!(w, "#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]")?;
+    writeln!(w, "#[non_exhaustive]")?;
+    writeln!(w, "pub enum Lang {{")?;
 
     for (name, iso, script, ..) in languages {
         writeln!(w, "  /// Hyphenation for _{name}_ (`{iso}`, `{script}`).")?;
@@ -89,6 +89,19 @@ fn main() -> io::Result<()> {
     writeln!(w, "    }}")?;
     writeln!(w, "  }}")?;
 
+    // Implementation of `bounds`.
+    writeln!(w, "  /// The default number of chars to each side between")?;
+    writeln!(w, "  /// which breaking is forbidden.")?;
+    writeln!(w, "  /// ")?;
+    writeln!(w, "  /// This follows typographic conventions.")?;
+    writeln!(w, "  pub fn bounds(self) -> (usize, usize) {{")?;
+    writeln!(w, "    match self {{")?;
+    for (name, .., lmin, rmin) in languages {
+        writeln!(w, "      Self::{name} => ({lmin}, {rmin}),")?;
+    }
+    writeln!(w, "    }}")?;
+    writeln!(w, "  }}")?;
+
     // Implementation of `root`.
     writeln!(w, "  fn root(self) -> State<'static> {{")?;
     writeln!(w, "    match self {{")?;
@@ -99,6 +112,7 @@ fn main() -> io::Result<()> {
     }
     writeln!(w, "    }}")?;
     writeln!(w, "  }}")?;
+
     writeln!(w, "}}")?;
 
     Ok(())
@@ -296,7 +310,7 @@ impl TrieBuilder {
         let mut data = vec![];
 
         // Encode the root address.
-        data.extend(u32::try_from(addrs[self.root] as u32).unwrap().to_be_bytes());
+        data.extend(u32::try_from(addrs[self.root]).unwrap().to_be_bytes());
 
         // Encode the levels.
         for &(dist, level) in &self.levels {
