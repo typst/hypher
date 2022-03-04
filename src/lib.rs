@@ -16,6 +16,9 @@
 //! assert_eq!(syllables.join("-"), "ex-ten-sive");
 //! ```
 
+use std::fmt::{self, Debug, Formatter};
+use std::iter::FusedIterator;
+
 // Include language data.
 include!(concat!(env!("OUT_DIR"), "/langs.rs"));
 
@@ -63,8 +66,8 @@ pub fn hyphenate_with_bounds(
     let dotted = format!(".{}.", word.to_ascii_lowercase());
 
     // The level between each two inner bytes of the word.
-    let len = word.len().saturating_sub(1);
-    let mut levels = vec![0; len];
+    let mut levels = Bytes::zeroed(word.len().saturating_sub(1));
+    let levels_mut = levels.as_mut_slice();
 
     // Start pattern matching at each character boundary.
     for (start, _) in dotted.char_indices() {
@@ -80,7 +83,7 @@ pub fn hyphenate_with_bounds(
                     // Dotted: . h e l l o .
                     // Levels:    0 2 3 0
                     if split >= min_idx && split <= max_idx {
-                        let slot = &mut levels[split - 2];
+                        let slot = &mut levels_mut[split - 2];
                         *slot = (*slot).max(level);
                     }
                 }
@@ -105,7 +108,7 @@ pub fn hyphenate_with_bounds(
 pub struct Syllables<'a> {
     word: &'a str,
     cursor: usize,
-    levels: std::vec::IntoIter<u8>,
+    levels: Bytes,
 }
 
 impl Syllables<'_> {
@@ -155,7 +158,74 @@ impl<'a> Iterator for Syllables<'a> {
 
 impl ExactSizeIterator for Syllables<'_> {}
 
-impl std::iter::FusedIterator for Syllables<'_> {}
+impl FusedIterator for Syllables<'_> {}
+
+/// Storage for and iterator over bytes.
+#[derive(Clone)]
+enum Bytes {
+    Array(std::array::IntoIter<u8, 40>, usize),
+    Vec(std::vec::IntoIter<u8>),
+}
+
+impl Bytes {
+    /// Create zero-initialized bytes.
+    fn zeroed(len: usize) -> Self {
+        if len <= 40 {
+            Self::Array([0; 40].into_iter(), len)
+        } else {
+            Self::Vec(vec![0; len].into_iter())
+        }
+    }
+
+    /// Access the bytes as a slice.
+    fn as_slice(&self) -> &[u8] {
+        match self {
+            Self::Array(iter, len) => &iter.as_slice()[.. *len],
+            Self::Vec(iter) => iter.as_slice(),
+        }
+    }
+
+    /// Access the bytes as a mutable slice.
+    fn as_mut_slice(&mut self) -> &mut [u8] {
+        match self {
+            Self::Array(iter, len) => &mut iter.as_mut_slice()[.. *len],
+            Self::Vec(iter) => iter.as_mut_slice(),
+        }
+    }
+}
+
+impl Iterator for Bytes {
+    type Item = u8;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        match self {
+            Self::Array(iter, len) => {
+                if *len > 0 {
+                    *len -= 1;
+                    iter.next()
+                } else {
+                    None
+                }
+            }
+            Self::Vec(iter) => iter.next(),
+        }
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        match self {
+            Self::Array(_, len) => (*len, Some(*len)),
+            Self::Vec(iter) => iter.size_hint(),
+        }
+    }
+}
+
+impl ExactSizeIterator for Bytes {}
+
+impl Debug for Bytes {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        self.as_slice().fmt(f)
+    }
+}
 
 /// A state in a trie traversal.
 #[derive(Copy, Clone)]
