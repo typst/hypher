@@ -13,12 +13,11 @@
 //! use hypher::{hyphenate, Lang};
 //!
 //! let syllables = hyphenate("extensive", Lang::English);
-//! let joined = syllables.collect::<Vec<_>>().join("-");
-//! assert_eq!(joined, "ex-ten-sive");
+//! assert_eq!(syllables.join("-"), "ex-ten-sive");
 //! ```
 
 /// Segment a word into syllables.
-pub fn hyphenate(word: &str, lang: Lang) -> impl Iterator<Item = &str> {
+pub fn hyphenate(word: &str, lang: Lang) -> Syllables<'_> {
     // The level between each two inner bytes of the word.
     let len = word.len().saturating_sub(1);
     let mut levels = vec![0; len];
@@ -45,18 +44,56 @@ pub fn hyphenate(word: &str, lang: Lang) -> impl Iterator<Item = &str> {
 
     // Break into segments at odd levels.
     // TODO: Left and right min hyphen
-    let mut start = 0;
-    levels
-        .into_iter()
-        .take(len)
-        .enumerate()
-        .filter_map(|(i, lvl)| (lvl % 2 == 1).then(|| 1 + i))
-        .chain(std::iter::once(word.len()))
-        .map(move |end| {
-            let seg = &word[start .. end];
-            start = end;
-            seg
-        })
+    Syllables {
+        word,
+        start: 0,
+        levels: levels.into_iter(),
+    }
+}
+
+/// An iterator over the syllables of a word.
+///
+/// This struct is created by [`hyphenate`].
+#[derive(Clone)]
+pub struct Syllables<'a> {
+    word: &'a str,
+    start: usize,
+    levels: std::vec::IntoIter<u8>,
+}
+
+impl Syllables<'_> {
+    /// Join the syllables with a separator like a hyphen or soft hyphen.
+    ///
+    /// # Example
+    /// Adding soft hyphens at every opportunity.
+    /// ```
+    /// # use hypher::{hyphenate, Lang};
+    /// # let joined =
+    /// hyphenate("wonderful", Lang::English).join("\u{ad}");
+    /// # assert_eq!(joined, "won\u{ad}der\u{ad}ful")
+    /// ```
+    pub fn join(mut self, sep: &str) -> String {
+        let count = self.levels.as_slice().iter().filter(|&lvl| lvl % 2 == 1).count();
+        let mut s = String::with_capacity(self.word.len() + count * sep.len());
+        s.extend(self.next());
+        for syllable in self {
+            s.push_str(sep);
+            s.push_str(syllable);
+        }
+        s
+    }
+}
+
+impl<'a> Iterator for Syllables<'a> {
+    type Item = &'a str;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let found = self.levels.find(|lvl| lvl % 2 == 1).is_some();
+        let start = self.start;
+        let end = self.word.len() - self.levels.len() - found as usize;
+        self.start = end;
+        (start < end).then(|| &self.word[start .. end])
+    }
 }
 
 // Include language data.
@@ -173,10 +210,8 @@ mod tests {
 
     fn test(lang: Lang, hyphenated: &str) {
         let word = hyphenated.replace('-', "");
-        let parts = hyphenate(&word, lang).collect::<Vec<_>>();
-        let joined = parts.join("-");
-        println!("{joined}");
-        assert_eq!(joined, hyphenated);
+        let syllables = hyphenate(&word, lang);
+        assert_eq!(syllables.join("-"), hyphenated);
     }
 
     #[test]
