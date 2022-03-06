@@ -3,9 +3,9 @@
 //! # Features
 //! - All-inclusive: Hyphenation patterns are embedded into the binary as
 //!   efficiently encoded finite automata at build time.
-//! - Zero startup time: Hyphenation automata operate directly over the embedded
+//! - Zero load time: Hyphenation automata operate directly over the embedded
 //!   binary data with no up-front decoding.
-//! - No allocations unless when hyphenating very long words (> 40 bytes).
+//! - No allocations unless when hyphenating very long words (>= 39 bytes).
 //! - Support for many languages.
 //!
 //! # Example
@@ -25,6 +25,10 @@ include!(concat!(env!("OUT_DIR"), "/langs.rs"));
 /// Segment a word into syllables.
 ///
 /// Returns an iterator over the syllables.
+///
+/// This uses the default [bounds](Lang::bounds) for the language.
+///
+/// # Example
 /// ```
 /// # use hypher::{hyphenate, Lang};
 /// let mut syllables = hyphenate("extensive", Lang::English);
@@ -34,16 +38,25 @@ include!(concat!(env!("OUT_DIR"), "/langs.rs"));
 /// assert_eq!(syllables.next(), None);
 /// # assert_eq!(syllables.next(), None);
 /// ```
-///
-/// This uses the default bounds for the language.
 pub fn hyphenate(word: &str, lang: Lang) -> Syllables<'_> {
     let (left_min, right_min) = lang.bounds();
-    hyphenate_with_bounds(word, lang, left_min, right_min)
+    hyphenate_bounded(word, lang, left_min, right_min)
 }
 
 /// Segment a word into syllables, but forbid breaking betwen the given number
 /// of chars to each side.
-pub fn hyphenate_with_bounds(
+///
+/// Returns an iterator over the syllables.
+///
+/// # Example
+/// By setting the left bound to three, we forbid the possible break between
+/// `ex` and `ten`.
+/// ```
+/// # use hypher::{hyphenate_bounded, Lang};
+/// let syllables = hyphenate_bounded("extensive", Lang::English, 3, 1);
+/// assert_eq!(syllables.join("-"), "exten-sive");
+/// ```
+pub fn hyphenate_bounded(
     word: &str,
     lang: Lang,
     left_min: usize,
@@ -52,27 +65,25 @@ pub fn hyphenate_with_bounds(
     // Initialize the trie state for the language.
     let root = lang.root();
 
-    // It makes no sense to split outside the word.
-    let left_min = left_min.max(1);
-    let right_min = right_min.max(1);
+    // Lowercase and add dots before and after the word..
+    let dotted = lowercase_and_dot(word);
+    let dotted = dotted.as_slice();
 
-    // Convert from chars to byte indices in the dotted word.
-    let min_idx = 1 + word.chars().take(left_min).map(char::len_utf8).sum::<usize>();
-    let max_idx = 1 + word.len()
-        - word.chars().rev().take(right_min).map(char::len_utf8).sum::<usize>();
+    // Convert char bounds to byte bounds in the dotted word.
+    let (min_idx, max_idx) = char_to_byte_bounds(word, left_min, right_min);
 
-    // Add a dot to each side to enable patterns that match based on whether
-    // they are at the edges of the word.
-    let dotted = format!(".{}.", word.to_ascii_lowercase());
-
-    // The level between each two inner bytes of the word.
-    let mut levels = Bytes::zeroed(word.len().saturating_sub(1));
+    // The levels between each two inner bytes of the word.
+    let mut levels = Bytes::zeros(word.len().saturating_sub(1));
     let levels_mut = levels.as_mut_slice();
 
     // Start pattern matching at each character boundary.
-    for (start, _) in dotted.char_indices() {
+    for start in 0 .. dotted.len() {
+        if !is_char_boundary(dotted[start]) {
+            continue;
+        }
+
         let mut state = root;
-        for b in dotted[start ..].bytes() {
+        for &b in &dotted[start ..] {
             if let Some(next) = state.transition(b) {
                 state = next;
                 for (offset, level) in state.levels() {
@@ -99,6 +110,46 @@ pub fn hyphenate_with_bounds(
         cursor: 0,
         levels: levels.into_iter(),
     }
+}
+
+/// Lowercase a word and add dots before and after it.
+///
+/// The dots enable patterns that match based on whether they are at the edges
+/// of the word.
+fn lowercase_and_dot(word: &str) -> Bytes {
+    let mut dotted = Bytes::zeros(word.len() + 2);
+    let dotted_mut = dotted.as_mut_slice();
+    dotted_mut[0] = b'.';
+
+    // Add the lowercased chars.
+    let mut offset = 1;
+    for mut c in word.chars() {
+        let mut lower = c.to_lowercase();
+        if let (Some(l), None) = (lower.next(), lower.next()) {
+            if l.len_utf8() == c.len_utf8() {
+                c = l;
+            }
+        }
+        offset += c.encode_utf8(&mut dotted_mut[offset ..]).len();
+    }
+
+    debug_assert_eq!(offset, word.len() + 1);
+    dotted_mut[offset] = b'.';
+    dotted
+}
+
+/// Convert char bounds to byte bounds in the dotted word.
+fn char_to_byte_bounds(word: &str, left_min: usize, right_min: usize) -> (usize, usize) {
+    // It makes no sense to split outside the word.
+    let left_min = left_min.max(1);
+    let right_min = right_min.max(1);
+
+    // Convert from chars to byte indices in the dotted word.
+    let min_idx = 1 + word.chars().take(left_min).map(char::len_utf8).sum::<usize>();
+    let max_idx = 1 + word.len()
+        - word.chars().rev().take(right_min).map(char::len_utf8).sum::<usize>();
+
+    (min_idx, max_idx)
 }
 
 /// An iterator over the syllables of a word.
@@ -169,7 +220,7 @@ enum Bytes {
 
 impl Bytes {
     /// Create zero-initialized bytes.
-    fn zeroed(len: usize) -> Self {
+    fn zeros(len: usize) -> Self {
         if len <= 40 {
             Self::Array([0; 40].into_iter(), len)
         } else {
@@ -329,6 +380,11 @@ fn from_be_bytes(buf: &[u8]) -> isize {
     } else {
         panic!("invalid stride");
     }
+}
+
+/// Whether a byte is a character boundary.
+fn is_char_boundary(b: u8) -> bool {
+    (b as i8) >= -0x40
 }
 
 #[cfg(test)]
