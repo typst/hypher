@@ -1,7 +1,14 @@
 [package]
 name = "hypher"
 version = "0.1.0"
+authors = ["Laurenz <laurmaedje@gmail.com>"]
 edition = "2021"
+description = "hypher separates words into syllables."
+repository = "https://github.com/typst/hypher"
+readme = "README.md"
+license = "MIT OR Apache-2.0"
+categories = ["text-processing", "internationalization"]
+keywords = ["hyphenation", "syllables"]
 
 [features]
 default = ["full"]

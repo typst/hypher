@@ -3,15 +3,15 @@ _hypher_ separates words into syllables.
 
 # Features
 - All-inclusive: Hyphenation patterns are embedded into the binary as
-efficiently encoded finite automata at build time.
+  efficiently encoded finite automata at build time.
 - Zero load time: Hyphenation automata operate directly over the embedded
-binary data with no up-front decoding.
+  binary data with no up-front decoding.
 - No allocations unless when hyphenating very long words (>= 39 bytes).
 - Support for many languages.
-- No unsafe code.
+- No unsafe code, no dependencies.
 
 # Example
-```
+```rust
 use hypher::{hyphenate, Lang};
 
 let syllables = hyphenate("extensive", Lang::English);
