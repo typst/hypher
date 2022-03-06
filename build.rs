@@ -48,17 +48,19 @@ fn main() -> io::Result<()> {
 
     // Build the tries.
     for (_, iso, _, filename, ..) in languages {
-        let path = Path::new("patterns").join(filename);
-        let tex = fs::read_to_string(&path)?;
-        let mut builder = TrieBuilder::new();
-        parse(&tex, |pat| builder.insert(pat));
-        builder.compress();
-        let trie = builder.encode();
-        fs::write(out.join(format!("{iso}.bin")), &trie)?;
+        if cfg!(feature = "full") || (cfg!(feature = "english") && iso == "en") {
+            let path = Path::new("patterns").join(filename);
+            let tex = fs::read_to_string(&path)?;
+            let mut builder = TrieBuilder::new();
+            parse(&tex, |pat| builder.insert(pat));
+            builder.compress();
+            let trie = builder.encode();
+            fs::write(out.join(format!("{iso}.bin")), &trie)?;
+        }
     }
 
     let file = File::create(out.join("langs.rs"))?;
-    let mut w = BufWriter::new(file);
+    let w = &mut BufWriter::new(file);
 
     writeln!(w, "/// A language you can hyphenate in.")?;
     writeln!(w, "///")?;
@@ -70,7 +72,10 @@ fn main() -> io::Result<()> {
     writeln!(w, "pub enum Lang {{")?;
 
     for (name, iso, script, ..) in languages {
-        writeln!(w, "  /// Hyphenation for _{name}_ (`{iso}`, `{script}`).")?;
+        let feature = if iso == "en" { "english" } else { "full" };
+        writeln!(w, "  /// Hyphenation for _{name}._ (Code: `{iso}`,")?;
+        writeln!(w, "  /// Script, `{script}`, Feature: `{feature}`)")?;
+        write_cfg(w, iso)?;
         writeln!(w, "  {name},")?;
     }
 
@@ -80,9 +85,10 @@ fn main() -> io::Result<()> {
 
     // Implementation of `from_iso`.
     writeln!(w, "  /// Select a language using its ISO 639-1 code.")?;
-    writeln!(w, "  pub fn from_iso(iso: [u8; 2]) -> Option<Self> {{")?;
-    writeln!(w, "    match &iso {{")?;
+    writeln!(w, "  pub fn from_iso(code: [u8; 2]) -> Option<Self> {{")?;
+    writeln!(w, "    match &code {{")?;
     for (name, iso, ..) in languages {
+        write_cfg(w, iso)?;
         writeln!(w, r#"      b"{iso}" => Some(Self::{name}),"#)?;
     }
     writeln!(w, "      _ => None,")?;
@@ -96,7 +102,8 @@ fn main() -> io::Result<()> {
     writeln!(w, "  /// This follows typographic conventions.")?;
     writeln!(w, "  pub fn bounds(self) -> (usize, usize) {{")?;
     writeln!(w, "    match self {{")?;
-    for (name, .., lmin, rmin) in languages {
+    for (name, iso, .., lmin, rmin) in languages {
+        write_cfg(w, iso)?;
         writeln!(w, "      Self::{name} => ({lmin}, {rmin}),")?;
     }
     writeln!(w, "    }}")?;
@@ -106,6 +113,7 @@ fn main() -> io::Result<()> {
     writeln!(w, "  fn root(self) -> State<'static> {{")?;
     writeln!(w, "    match self {{")?;
     for (name, iso, ..) in languages {
+        write_cfg(w, iso)?;
         write!(w, "      Self::{name} => State::root(include_bytes!(")?;
         write!(w, r#"concat!(env!("OUT_DIR"), "/{iso}.bin")"#)?;
         writeln!(w, ")),")?;
@@ -116,6 +124,14 @@ fn main() -> io::Result<()> {
     writeln!(w, "}}")?;
 
     Ok(())
+}
+
+fn write_cfg(w: &mut dyn Write, iso: &str) -> io::Result<()> {
+    if iso == "en" {
+        writeln!(w, r#"  #[cfg(feature = "english")]"#)
+    } else {
+        writeln!(w, r#"  #[cfg(feature = "full")]"#)
+    }
 }
 
 /// Parse a TeX pattern file, calling `f` with each pattern.

@@ -5,3 +5,8 @@ edition = "2021"
 
 [profile.dev.build-override]
 opt-level = 1
+
+[features]
+default = ["full"]
+full = ["english"]
+english = []

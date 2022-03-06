@@ -1,20 +1,37 @@
-//! `hypher` separates words into syllables.
-//!
-//! # Features
-//! - All-inclusive: Hyphenation patterns are embedded into the binary as
-//!   efficiently encoded finite automata at build time.
-//! - Zero load time: Hyphenation automata operate directly over the embedded
-//!   binary data with no up-front decoding.
-//! - No allocations unless when hyphenating very long words (>= 39 bytes).
-//! - Support for many languages.
-//!
-//! # Example
-//! ```
-//! use hypher::{hyphenate, Lang};
-//!
-//! let syllables = hyphenate("extensive", Lang::English);
-//! assert_eq!(syllables.join("-"), "ex-ten-sive");
-//! ```
+/*!
+_hypher_ separates words into syllables.
+
+# Features
+- All-inclusive: Hyphenation patterns are embedded into the binary as
+efficiently encoded finite automata at build time.
+- Zero load time: Hyphenation automata operate directly over the embedded
+binary data with no up-front decoding.
+- No allocations unless when hyphenating very long words (>= 39 bytes).
+- Support for many languages.
+- No unsafe code.
+
+# Example
+```
+use hypher::{hyphenate, Lang};
+
+let syllables = hyphenate("extensive", Lang::English);
+assert_eq!(syllables.join("-"), "ex-ten-sive");
+```
+
+# Languages
+By default, this crate supports hyphenating more than 30 languages. Embedding
+automata for all these languages will add ~1.1 MB to your binary. Alternatively,
+you can disable support for all languages other than English. Then, only
+27 KB will be added to your binary.
+
+```toml
+[dependencies]
+hypher = { version = "0.1", default-features = false, features = ["english"] }
+```
+*/
+
+#![forbid(unsafe_code)]
+#![deny(missing_docs)]
 
 use std::fmt::{self, Debug, Formatter};
 use std::iter::FusedIterator;
@@ -154,7 +171,7 @@ fn char_to_byte_bounds(word: &str, left_min: usize, right_min: usize) -> (usize,
 
 /// An iterator over the syllables of a word.
 ///
-/// This struct is created by [`hyphenate`].
+/// This struct is created by [`hyphenate`] and [`hyphenate_bounded`].
 #[derive(Debug, Clone)]
 pub struct Syllables<'a> {
     word: &'a str,
@@ -291,6 +308,7 @@ struct State<'a> {
 
 impl<'a> State<'a> {
     /// Create a new state at the root node.
+    #[allow(unused)]
     fn root(data: &'a [u8]) -> Self {
         let bytes = data[.. 4].try_into().unwrap();
         let addr = u32::from_be_bytes(bytes) as usize;
