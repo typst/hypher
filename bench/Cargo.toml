@@ -1,0 +1,15 @@
+[package]
+name = "hypher-bench"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dev-dependencies]
+criterion = "0.3"
+hypher = { path = ".." }
+hyphenation = { version = "0.8", features = ["embed_all"] }
+
+[[bench]]
+name = "bench"
+path = "bench.rs"
+harness = false
