@@ -47,16 +47,20 @@ fn main() -> io::Result<()> {
     let out = PathBuf::from(env::var_os("OUT_DIR").unwrap());
 
     // Build the tries.
-    for (_, iso, _, filename, ..) in languages {
-        if cfg!(feature = "full") || (cfg!(feature = "english") && iso == "en") {
-            let path = Path::new("patterns").join(filename);
-            let tex = fs::read_to_string(&path)?;
-            let mut builder = TrieBuilder::new();
-            parse(&tex, |pat| builder.insert(pat));
-            builder.compress();
-            let trie = builder.encode();
-            fs::write(out.join(format!("{iso}.bin")), &trie)?;
+    for (name, iso, _, filename, ..) in languages {
+        let feature = name.to_lowercase();
+        let feature_env_name = format!("CARGO_FEATURE_{feature}");
+        if std::env::var(feature_env_name).is_err() {
+            continue;
         }
+
+        let path = Path::new("patterns").join(filename);
+        let tex = fs::read_to_string(&path)?;
+        let mut builder = TrieBuilder::new();
+        parse(&tex, |pat| builder.insert(pat));
+        builder.compress();
+        let trie = builder.encode();
+        fs::write(out.join(format!("{iso}.bin")), &trie)?;
     }
 
     let file = File::create(out.join("langs.rs"))?;
@@ -72,10 +76,10 @@ fn main() -> io::Result<()> {
     writeln!(w, "pub enum Lang {{")?;
 
     for (name, iso, script, ..) in languages {
-        let feature = if iso == "en" { "english" } else { "full" };
+        let feature = name.to_lowercase();
         writeln!(w, "  /// Hyphenation for _{name}._ (Code: `{iso}`,")?;
         writeln!(w, "  /// Script, `{script}`, Feature: `{feature}`)")?;
-        write_cfg(w, iso)?;
+        write_cfg(w, &feature)?;
         writeln!(w, "  {name},")?;
     }
 
@@ -88,7 +92,8 @@ fn main() -> io::Result<()> {
     writeln!(w, "  pub fn from_iso(code: [u8; 2]) -> Option<Self> {{")?;
     writeln!(w, "    match &code {{")?;
     for (name, iso, ..) in languages {
-        write_cfg(w, iso)?;
+        let feature = name.to_lowercase();
+        write_cfg(w, &feature)?;
         writeln!(w, r#"      b"{iso}" => Some(Self::{name}),"#)?;
     }
     writeln!(w, "      _ => None,")?;
@@ -102,8 +107,9 @@ fn main() -> io::Result<()> {
     writeln!(w, "  /// This follows typographic conventions.")?;
     writeln!(w, "  pub fn bounds(self) -> (usize, usize) {{")?;
     writeln!(w, "    match self {{")?;
-    for (name, iso, .., lmin, rmin) in languages {
-        write_cfg(w, iso)?;
+    for (name, .., lmin, rmin) in languages {
+        let feature = name.to_lowercase();
+        write_cfg(w, &feature)?;
         writeln!(w, "      Self::{name} => ({lmin}, {rmin}),")?;
     }
     writeln!(w, "    }}")?;
@@ -113,7 +119,8 @@ fn main() -> io::Result<()> {
     writeln!(w, "  fn root(self) -> State<'static> {{")?;
     writeln!(w, "    match self {{")?;
     for (name, iso, ..) in languages {
-        write_cfg(w, iso)?;
+        let feature = name.to_lowercase();
+        write_cfg(w, &feature)?;
         write!(w, "      Self::{name} => State::root(include_bytes!(")?;
         write!(w, r#"concat!(env!("OUT_DIR"), "/{iso}.bin")"#)?;
         writeln!(w, ")),")?;
@@ -126,12 +133,8 @@ fn main() -> io::Result<()> {
     Ok(())
 }
 
-fn write_cfg(w: &mut dyn Write, iso: &str) -> io::Result<()> {
-    if iso == "en" {
-        writeln!(w, r#"  #[cfg(feature = "english")]"#)
-    } else {
-        writeln!(w, r#"  #[cfg(feature = "full")]"#)
-    }
+fn write_cfg(w: &mut dyn Write, feature: &str) -> io::Result<()> {
+    writeln!(w, r#"  #[cfg(feature = "{feature}")]"#)
 }
 
 /// Parse a TeX pattern file, calling `f` with each pattern.

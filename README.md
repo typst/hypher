@@ -28,14 +28,50 @@ assert_eq!(syllables.join("-"), "ex-ten-sive");
 
 ## Languages
 By default, this crate supports hyphenating more than 30 languages. Embedding
-automata for all these languages will add ~1.1 MB to your binary. Alternatively,
-you can disable support for all languages other than English. Then, only
-27 KB will be added to your binary.
+automata for all these languages will add ~1.1 MiB to your binary. Alternatively,
+you can disable support for all languages and manually choose which ones get
+added:
 
 ```toml
 [dependencies]
-hypher = { version = "0.1", default-features = false, features = ["english"] }
+hypher = { version = "0.1", default-features = false, features = ["english", "greek"] }
 ```
+Each language added individually contributes:
+
+| Language   | Space   |
+|------------|---------|
+| Afrikaans  | 60 KiB  |
+| Belarusian | 3.9 KiB |
+| Bulgarian  | 13 KiB  |
+| Danish     | 5.7 KiB |
+| German     | 192 KiB |
+| Greek      | 2.0 KiB |
+| English    | 27 KiB  |
+| Spanish    | 14 KiB  |
+| Estonian   | 19 KiB  |
+| Finnish    | 1.3 KiB |
+| French     | 6.9 KiB |
+| Croatian   | 2.0 KiB |
+| Hungarian  | 346 KiB |
+| Icelandic  | 21 KiB  |
+| Italian    | 1.6 KiB |
+| Georgian   | 11 KiB  |
+| Kurmanji   | 1.4 KiB |
+| Latin      | 1003 B  |
+| Lithuanian | 6.5 KiB |
+| Mongolian  | 4.9 KiB |
+| Dutch      | 63 KiB  |
+| Norwegian  | 153 KiB |
+| Portuguese | 343 B   |
+| Russian    | 33 KiB  |
+| Serbian    | 13 KiB  |
+| Slovak     | 13 KiB  |
+| Slovenian  | 5.5 KiB |
+| Albanian   | 1.4 KiB |
+| Swedish    | 24 KiB  |
+| Turkmen    | 1.4 KiB |
+| Turkish    | 526 B   |
+| Ukrainian  | 21 KiB  |
 
 ## Benchmarks
 | Task                               | `hypher`  | [`hyphenation`] |
