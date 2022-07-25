@@ -12,8 +12,72 @@ keywords = ["hyphenation", "syllables"]
 
 [features]
 default = ["full"]
-full = ["english"]
+full = [
+    "afrikaans",
+    "albanian",
+    "belarusian",
+    "bulgarian",
+    "croatian",
+    "danish",
+    "dutch",
+    "english",
+    "estonian",
+    "finnish",
+    "french",
+    "georgian",
+    "german",
+    "greek",
+    "hungarian",
+    "icelandic",
+    "italian",
+    "kurmanji",
+    "latin",
+    "lithuanian",
+    "mongolian",
+    "norwegian",
+    "portuguese",
+    "russian",
+    "serbian",
+    "slovak",
+    "slovenian",
+    "spanish",
+    "swedish",
+    "turkish",
+    "turkmen",
+    "ukrainian",
+]
+afrikaans = []
+albanian = []
+belarusian = []
+bulgarian = []
+croatian = []
+danish = []
+dutch = []
 english = []
+estonian = []
+finnish = []
+french = []
+georgian = []
+german = []
+greek = []
+hungarian = []
+icelandic = []
+italian = []
+kurmanji = []
+latin = []
+lithuanian = []
+mongolian = []
+norwegian = []
+portuguese = []
+russian = []
+serbian = []
+slovak = []
+slovenian = []
+spanish = []
+swedish = []
+turkish = []
+turkmen = []
+ukrainian = []
 
 [workspace]
 members = ["bench"]
