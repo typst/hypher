@@ -48,7 +48,7 @@ fn main() -> io::Result<()> {
 
     // Build the tries.
     for (name, iso, _, filename, ..) in languages {
-        let feature = name.to_lowercase();
+        let feature = name.to_uppercase();
         let feature_env_name = format!("CARGO_FEATURE_{feature}");
         if std::env::var(feature_env_name).is_err() {
             continue;
