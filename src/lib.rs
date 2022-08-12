@@ -38,7 +38,6 @@ hypher = { version = "0.1", default-features = false, features = ["english"] }
 #![deny(missing_docs)]
 
 #[cfg(any(feature = "alloc", test))]
-#[cfg_attr(not(test), macro_use)]
 extern crate alloc;
 
 use core::fmt::{self, Debug, Formatter};
@@ -265,7 +264,7 @@ impl Bytes {
         } else {
             #[cfg(feature = "alloc")]
             {
-                Self::Vec(vec![0; len].into_iter())
+                Self::Vec(alloc::vec![0; len].into_iter())
             }
             #[cfg(not(feature = "alloc"))]
             {
