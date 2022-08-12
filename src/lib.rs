@@ -269,7 +269,7 @@ impl Bytes {
             }
             #[cfg(not(feature = "alloc"))]
             {
-                panic!("Word too large")
+                panic!("word too long");
             }
         }
     }
