@@ -33,7 +33,7 @@ hypher = { version = "0.1", default-features = false, features = ["english"] }
 ```
 */
 
-#![cfg_attr(not(test), no_std)]
+#![no_std]
 #![forbid(unsafe_code)]
 #![deny(missing_docs)]
 
