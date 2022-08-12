@@ -20,7 +20,20 @@ assert_eq!(syllables.next(), Some("ten"));
 assert_eq!(syllables.next(), Some("sive"));
 assert_eq!(syllables.next(), None);
 ```
-
+*/
+#![cfg_attr(
+    feature = "alloc",
+    doc = r##"
+If the `alloc` feature is enabled, you can use [`Syllables::join`] to create
+a new string.
+```rust
+# use hypher::{hyphenate, Lang};
+let mut syllables = hyphenate("extensive", Lang::English);
+assert_eq!(syllables.join("-"), "ex-ten-sive");
+```
+"##
+)]
+/*!
 # Languages
 By default, this crate supports hyphenating more than 30 languages. Embedding
 automata for all these languages will add ~1.1 MB to your binary. Alternatively,
