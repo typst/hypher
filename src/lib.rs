@@ -14,10 +14,26 @@ _hypher_ separates words into syllables.
 ```rust
 use hypher::{hyphenate, Lang};
 
-let syllables = hyphenate("extensive", Lang::English);
+let mut syllables = hyphenate("extensive", Lang::English);
+assert_eq!(syllables.next(), Some("ex"));
+assert_eq!(syllables.next(), Some("ten"));
+assert_eq!(syllables.next(), Some("sive"));
+assert_eq!(syllables.next(), None);
+```
+*/
+#![cfg_attr(
+    feature = "alloc",
+    doc = r##"
+If the `alloc` feature is enabled, you can use [`Syllables::join`] to create
+a new string.
+```rust
+# use hypher::{hyphenate, Lang};
+let mut syllables = hyphenate("extensive", Lang::English);
 assert_eq!(syllables.join("-"), "ex-ten-sive");
 ```
-
+"##
+)]
+/*!
 # Languages
 By default, this crate supports hyphenating more than 30 languages. Embedding
 automata for all these languages will add ~1.1 MB to your binary. Alternatively,
@@ -30,11 +46,15 @@ hypher = { version = "0.1", default-features = false, features = ["english"] }
 ```
 */
 
+#![no_std]
 #![forbid(unsafe_code)]
 #![deny(missing_docs)]
 
-use std::fmt::{self, Debug, Formatter};
-use std::iter::FusedIterator;
+#[cfg(any(feature = "alloc", test))]
+extern crate alloc;
+
+use core::fmt::{self, Debug, Formatter};
+use core::iter::FusedIterator;
 
 // Include language data.
 include!(concat!(env!("OUT_DIR"), "/langs.rs"));
@@ -44,6 +64,11 @@ include!(concat!(env!("OUT_DIR"), "/langs.rs"));
 /// Returns an iterator over the syllables.
 ///
 /// This uses the default [bounds](Lang::bounds) for the language.
+///
+/// # Panics
+///
+/// Panics if the word is more than 38 bytes long and the `alloc` feature is
+/// disabled.
 ///
 /// # Example
 /// ```
@@ -65,13 +90,20 @@ pub fn hyphenate(word: &str, lang: Lang) -> Syllables<'_> {
 ///
 /// Returns an iterator over the syllables.
 ///
+/// # Panics
+///
+/// Panics if the word is more than 38 bytes long and the `alloc` feature is
+/// disabled.
+///
 /// # Example
 /// By setting the left bound to three, we forbid the possible break between
 /// `ex` and `ten`.
 /// ```
 /// # use hypher::{hyphenate_bounded, Lang};
-/// let syllables = hyphenate_bounded("extensive", Lang::English, 3, 1);
-/// assert_eq!(syllables.join("-"), "exten-sive");
+/// let mut syllables = hyphenate_bounded("extensive", Lang::English, 3, 1);
+/// assert_eq!(syllables.next(), Some("exten"));
+/// assert_eq!(syllables.next(), Some("sive"));
+/// assert_eq!(syllables.next(), None);
 /// ```
 pub fn hyphenate_bounded(
     word: &str,
@@ -190,9 +222,10 @@ impl Syllables<'_> {
     /// hyphenate("wonderful", Lang::English).join("\u{ad}");
     /// # assert_eq!(joined, "won\u{ad}der\u{ad}ful")
     /// ```
-    pub fn join(mut self, sep: &str) -> String {
+    #[cfg(any(feature = "alloc", test))]
+    pub fn join(mut self, sep: &str) -> alloc::string::String {
         let extra = self.splits() * sep.len();
-        let mut s = String::with_capacity(self.word.len() + extra);
+        let mut s = alloc::string::String::with_capacity(self.word.len() + extra);
         s.extend(self.next());
         for syllable in self {
             s.push_str(sep);
@@ -231,8 +264,9 @@ impl FusedIterator for Syllables<'_> {}
 /// Storage for and iterator over bytes.
 #[derive(Clone)]
 enum Bytes {
-    Array(std::array::IntoIter<u8, 40>, usize),
-    Vec(std::vec::IntoIter<u8>),
+    Array(core::array::IntoIter<u8, 40>, usize),
+    #[cfg(feature = "alloc")]
+    Vec(alloc::vec::IntoIter<u8>),
 }
 
 impl Bytes {
@@ -241,7 +275,14 @@ impl Bytes {
         if len <= 40 {
             Self::Array([0; 40].into_iter(), len)
         } else {
-            Self::Vec(vec![0; len].into_iter())
+            #[cfg(feature = "alloc")]
+            {
+                Self::Vec(alloc::vec![0; len].into_iter())
+            }
+            #[cfg(not(feature = "alloc"))]
+            {
+                panic!("word too long");
+            }
         }
     }
 
@@ -249,6 +290,7 @@ impl Bytes {
     fn as_slice(&self) -> &[u8] {
         match self {
             Self::Array(iter, len) => &iter.as_slice()[.. *len],
+            #[cfg(feature = "alloc")]
             Self::Vec(iter) => iter.as_slice(),
         }
     }
@@ -257,6 +299,7 @@ impl Bytes {
     fn as_mut_slice(&mut self) -> &mut [u8] {
         match self {
             Self::Array(iter, len) => &mut iter.as_mut_slice()[.. *len],
+            #[cfg(feature = "alloc")]
             Self::Vec(iter) => iter.as_mut_slice(),
         }
     }
@@ -275,6 +318,7 @@ impl Iterator for Bytes {
                     None
                 }
             }
+            #[cfg(feature = "alloc")]
             Self::Vec(iter) => iter.next(),
         }
     }
@@ -282,6 +326,7 @@ impl Iterator for Bytes {
     fn size_hint(&self) -> (usize, Option<usize>) {
         match self {
             Self::Array(_, len) => (*len, Some(*len)),
+            #[cfg(feature = "alloc")]
             Self::Vec(iter) => iter.size_hint(),
         }
     }
