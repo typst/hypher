@@ -41,13 +41,13 @@ assert_eq!(syllables.next(), None);
 /*!
 # Languages
 By default, this crate supports hyphenating more than 30 languages. Embedding
-automata for all these languages will add ~1.1 MB to your binary. Alternatively,
-you can selectively enable individual languages. For example, you can embed just
-english as shown below and then only 27 KB will be added to your binary.
+automata for all these languages will add ~1.1 MiB to your binary. Alternatively,
+you can disable support for all languages and manually choose which ones get
+added:
 
 ```toml
 [dependencies]
-hypher = { version = "0.1", default-features = false, features = ["english"] }
+hypher = { version = "0.1", default-features = false, features = ["english", "greek"] }
 ```
 */
 

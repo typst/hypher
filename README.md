@@ -37,6 +37,7 @@ added:
 [dependencies]
 hypher = { version = "0.1", default-features = false, features = ["english", "greek"] }
 ```
+
 Each language added individually contributes:
 
 | Language   | Space   |
