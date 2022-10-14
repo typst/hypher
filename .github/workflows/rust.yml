@@ -22,8 +22,11 @@ jobs:
       - name: Build with no features
         run: cargo build --no-default-features
 
-      - name: Build with just english
-        run: cargo build --no-default-features --features english
+      - name: Test with just english
+        run: cargo test --lib --no-default-features --features english
 
       - name: Test
-        run: cargo test
+        run: cargo test --lib
+
+      - name: Test that generated code is fresh
+        run: cargo test --test generate

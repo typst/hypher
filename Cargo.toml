@@ -9,6 +9,7 @@ readme = "README.md"
 license = "MIT OR Apache-2.0"
 categories = ["text-processing", "internationalization", "no-std"]
 keywords = ["hyphenation", "syllables"]
+exclude = ["patterns/*"]
 
 [features]
 default = ["alloc", "full"]

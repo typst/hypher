@@ -6,11 +6,27 @@ _hypher_ separates words into syllables.
   efficiently encoded finite automata at build time.
 - Zero load time: Hyphenation automata operate directly over the embedded
   binary data with no up-front decoding.
-- No allocations unless when hyphenating very long words (>= 39 bytes).
+- No allocations unless when hyphenating very long words (>= 39 bytes). You can
+  disable the `alloc` feature, but then overly long words lead to a panic.
 - Support for many languages.
-- No unsafe code, no dependencies.
+- No unsafe code, no dependencies, no std.
 
 # Example
+*/
+#![cfg_attr(
+    feature = "alloc",
+    doc = r##"
+```rust
+use hypher::{hyphenate, Lang};
+
+let mut syllables = hyphenate("extensive", Lang::English);
+assert_eq!(syllables.join("-"), "ex-ten-sive");
+```
+"##
+)]
+#![cfg_attr(
+    not(feature = "alloc"),
+    doc = r##"
 ```rust
 use hypher::{hyphenate, Lang};
 
@@ -20,25 +36,14 @@ assert_eq!(syllables.next(), Some("ten"));
 assert_eq!(syllables.next(), Some("sive"));
 assert_eq!(syllables.next(), None);
 ```
-*/
-#![cfg_attr(
-    feature = "alloc",
-    doc = r##"
-If the `alloc` feature is enabled, you can use [`Syllables::join`] to create
-a new string.
-```rust
-# use hypher::{hyphenate, Lang};
-let mut syllables = hyphenate("extensive", Lang::English);
-assert_eq!(syllables.join("-"), "ex-ten-sive");
-```
 "##
 )]
 /*!
 # Languages
 By default, this crate supports hyphenating more than 30 languages. Embedding
 automata for all these languages will add ~1.1 MB to your binary. Alternatively,
-you can disable support for all languages other than English. Then, only
-27 KB will be added to your binary.
+you can selectively enable individual languages. For example, you can embed just
+english as shown below and then only 27 KB will be added to your binary.
 
 ```toml
 [dependencies]
@@ -57,7 +62,7 @@ use core::fmt::{self, Debug, Formatter};
 use core::iter::FusedIterator;
 
 // Include language data.
-include!(concat!(env!("OUT_DIR"), "/langs.rs"));
+include!("lang.rs");
 
 /// Segment a word into syllables.
 ///
@@ -214,6 +219,8 @@ pub struct Syllables<'a> {
 impl Syllables<'_> {
     /// Join the syllables with a separator like a hyphen or soft hyphen.
     ///
+    /// This is only available when the `alloc` feature is enabled.
+    ///
     /// # Example
     /// Adding soft hyphens at every opportunity.
     /// ```
@@ -275,14 +282,11 @@ impl Bytes {
         if len <= 40 {
             Self::Array([0; 40].into_iter(), len)
         } else {
-            #[cfg(feature = "alloc")]
-            {
-                Self::Vec(alloc::vec![0; len].into_iter())
-            }
             #[cfg(not(feature = "alloc"))]
-            {
-                panic!("word too long");
-            }
+            panic!("hypher: maximum word length is 39 when `alloc` is disabled");
+
+            #[cfg(feature = "alloc")]
+            Self::Vec(alloc::vec![0; len].into_iter())
         }
     }
 
@@ -453,8 +457,11 @@ fn is_char_boundary(b: u8) -> bool {
 #[cfg(test)]
 mod tests {
     use super::{hyphenate, Lang};
+
+    #[allow(unused)]
     use Lang::*;
 
+    #[allow(unused)]
     fn test(lang: Lang, hyphenated: &str) {
         let word = hyphenated.replace('-', "");
         let syllables = hyphenate(&word, lang);
@@ -462,12 +469,14 @@ mod tests {
     }
 
     #[test]
+    #[cfg(feature = "english")]
     fn test_empty() {
         let mut syllables = hyphenate("", Lang::English);
         assert_eq!(syllables.next(), None);
     }
 
     #[test]
+    #[cfg(feature = "english")]
     fn test_exact() {
         assert_eq!(hyphenate("", Lang::English).len(), 0);
         assert_eq!(hyphenate("hello", Lang::English).len(), 1);
@@ -475,6 +484,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(feature = "english")]
     fn test_english() {
         test(English, "");
         test(English, "hi");
@@ -490,6 +500,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(feature = "german")]
     fn test_german() {
         test(German, "");
         test(German, "Baum");
@@ -505,6 +516,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(feature = "greek")]
     fn test_greek() {
         test(Greek, "δια-με-ρί-σμα-τα");
         test(Greek, "λα-τρευ-τός");
@@ -512,6 +524,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(feature = "georgian")]
     fn test_georgian() {
         test(Georgian, "თა-რო");
         test(Georgian, "შეყ-ვა-ნა");

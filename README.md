@@ -14,9 +14,10 @@ hypher = "0.1"
   efficiently encoded finite automata at build time.
 - Zero load time: Hyphenation automata operate directly over the embedded
   binary data with no up-front decoding.
-- No allocations unless when hyphenating very long words (>= 39 bytes).
+- No allocations unless when hyphenating very long words (>= 39 bytes). You can
+  disable the `alloc` feature, but then overly long words lead to a panic.
 - Support for many languages.
-- No unsafe code, no dependencies.
+- No unsafe code, no dependencies, no std.
 
 ## Example
 ```rust
