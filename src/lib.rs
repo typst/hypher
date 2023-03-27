@@ -131,13 +131,13 @@ pub fn hyphenate_bounded(
     let levels_mut = levels.as_mut_slice();
 
     // Start pattern matching at each character boundary.
-    for start in 0 .. dotted.len() {
+    for start in 0..dotted.len() {
         if !is_char_boundary(dotted[start]) {
             continue;
         }
 
         let mut state = root;
-        for &b in &dotted[start ..] {
+        for &b in &dotted[start..] {
             if let Some(next) = state.transition(b) {
                 state = next;
                 for (offset, level) in state.levels() {
@@ -159,11 +159,7 @@ pub fn hyphenate_bounded(
     }
 
     // Break into segments at odd levels.
-    Syllables {
-        word,
-        cursor: 0,
-        levels: levels.into_iter(),
-    }
+    Syllables { word, cursor: 0, levels: levels.into_iter() }
 }
 
 /// Lowercase a word and add dots before and after it.
@@ -184,7 +180,7 @@ fn lowercase_and_dot(word: &str) -> Bytes {
                 c = l;
             }
         }
-        offset += c.encode_utf8(&mut dotted_mut[offset ..]).len();
+        offset += c.encode_utf8(&mut dotted_mut[offset..]).len();
     }
 
     debug_assert_eq!(offset, word.len() + 1);
@@ -255,7 +251,7 @@ impl<'a> Iterator for Syllables<'a> {
         let start = self.cursor;
         let end = self.word.len() - self.levels.len() - found as usize;
         self.cursor = end;
-        (start < end).then(|| &self.word[start .. end])
+        (start < end).then(|| &self.word[start..end])
     }
 
     fn size_hint(&self) -> (usize, Option<usize>) {
@@ -293,7 +289,7 @@ impl Bytes {
     /// Access the bytes as a slice.
     fn as_slice(&self) -> &[u8] {
         match self {
-            Self::Array(iter, len) => &iter.as_slice()[.. *len],
+            Self::Array(iter, len) => &iter.as_slice()[..*len],
             #[cfg(feature = "alloc")]
             Self::Vec(iter) => iter.as_slice(),
         }
@@ -302,7 +298,7 @@ impl Bytes {
     /// Access the bytes as a mutable slice.
     fn as_mut_slice(&mut self) -> &mut [u8] {
         match self {
-            Self::Array(iter, len) => &mut iter.as_mut_slice()[.. *len],
+            Self::Array(iter, len) => &mut iter.as_mut_slice()[..*len],
             #[cfg(feature = "alloc")]
             Self::Vec(iter) => iter.as_mut_slice(),
         }
@@ -359,14 +355,14 @@ impl<'a> State<'a> {
     /// Create a new state at the root node.
     #[allow(unused)]
     fn root(data: &'a [u8]) -> Self {
-        let bytes = data[.. 4].try_into().unwrap();
+        let bytes = data[..4].try_into().unwrap();
         let addr = u32::from_be_bytes(bytes) as usize;
         Self::at(data, addr)
     }
 
     /// Create a new state at the given node address.
     fn at(data: &'a [u8], addr: usize) -> Self {
-        let node = &data[addr ..];
+        let node = &data[addr..];
         let mut pos = 0;
 
         // Decode whether the state has levels and the transition count.
@@ -388,25 +384,17 @@ impl<'a> State<'a> {
             let offset_lo = usize::from(node[pos + 1]) >> 4;
             let offset = offset_hi | offset_lo;
             let len = usize::from(node[pos + 1] & 15);
-            levels = &data[offset .. offset + len];
+            levels = &data[offset..offset + len];
             pos += 2;
         }
 
         // Decode the transitions.
-        let trans = &node[pos .. pos + count];
+        let trans = &node[pos..pos + count];
         pos += count;
 
         // Decode the targets.
-        let targets = &node[pos .. pos + stride * count];
-
-        Self {
-            data,
-            addr,
-            stride,
-            levels,
-            trans,
-            targets,
-        }
+        let targets = &node[pos..pos + stride * count];
+        Self { data, addr, stride, levels, trans, targets }
     }
 
     /// Return the state reached by following the transition labelled `b`.
@@ -414,7 +402,7 @@ impl<'a> State<'a> {
     fn transition(self, b: u8) -> Option<Self> {
         self.trans.iter().position(|&x| x == b).map(|idx| {
             let offset = self.stride * idx;
-            let delta = from_be_bytes(&self.targets[offset .. offset + self.stride]);
+            let delta = from_be_bytes(&self.targets[offset..offset + self.stride]);
             let next = (self.addr as isize + delta) as usize;
             Self::at(self.data, next)
         })

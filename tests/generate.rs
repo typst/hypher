@@ -118,10 +118,7 @@ fn write_lang(
     writeln!(w)?;
 
     // Implementation of `bounds`.
-    writeln!(
-        w,
-        "    /// The default number of chars to each side between"
-    )?;
+    writeln!(w, "    /// The default number of chars to each side between")?;
     writeln!(w, "    /// which breaking is forbidden.")?;
     writeln!(w, "    ///")?;
     writeln!(w, "    /// This follows typographic conventions.")?;
@@ -196,7 +193,7 @@ impl<'a> Scanner<'a> {
     fn eat_if(&mut self, pat: &str) -> bool {
         let matches = self.0.starts_with(pat);
         if matches {
-            self.0 = &self.0[pat.len() ..];
+            self.0 = &self.0[pat.len()..];
         }
         matches
     }
@@ -207,8 +204,8 @@ impl<'a> Scanner<'a> {
         while chars.next().map_or(false, f) {
             offset = self.0.len() - chars.as_str().len();
         }
-        let head = &self.0[.. offset];
-        self.0 = &self.0[offset ..];
+        let head = &self.0[..offset];
+        self.0 = &self.0[offset..];
         head
     }
 }
@@ -246,7 +243,7 @@ impl TrieBuilder {
 
         // Follow the existing transitions / add new ones.
         for b in pattern.bytes() {
-            if matches!(b, b'0' ..= b'9') {
+            if matches!(b, b'0'..=b'9') {
                 levels.push((dist, b - b'0'));
                 dist = 0;
             } else {
@@ -266,7 +263,7 @@ impl TrieBuilder {
 
         // Try to reuse existing levels.
         let mut offset = 0;
-        while offset < self.levels.len() && !self.levels[offset ..].starts_with(&levels) {
+        while offset < self.levels.len() && !self.levels[offset..].starts_with(&levels) {
             offset += 1;
         }
 

@@ -6,17 +6,11 @@ fn criterion_benchmark(c: &mut Criterion) {
     let greek = "διαμερίσματα";
 
     bench(c, "hypher-english", || {
-        drain(hypher::hyphenate(
-            black_box(english),
-            black_box(hypher::Lang::English),
-        ))
+        drain(hypher::hyphenate(black_box(english), black_box(hypher::Lang::English)))
     });
 
     bench(c, "hypher-greek", || {
-        drain(hypher::hyphenate(
-            black_box(greek),
-            black_box(hypher::Lang::Greek),
-        ))
+        drain(hypher::hyphenate(black_box(greek), black_box(hypher::Lang::Greek)))
     });
 
     let standard_english =
