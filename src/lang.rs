@@ -72,7 +72,7 @@ pub enum Lang {
     /// Hyphenation for _Mongolian._ (Code: `mn`, Script, `Cyrl`, Feature: `mongolian`)
     #[cfg(feature = "mongolian")]
     Mongolian,
-    /// Hyphenation for _Norwegian._ (Code: `no`, Script, `Latn`, Feature: `norwegian`)
+    /// Hyphenation for _Norwegian._ (Code: `no`, Alias: `nb`, Alias: `nn`, Script, `Latn`, Feature: `norwegian`)
     #[cfg(feature = "norwegian")]
     Norwegian,
     /// Hyphenation for _Portuguese._ (Code: `pt`, Script, `Latn`, Feature: `portuguese`)
@@ -155,6 +155,8 @@ impl Lang {
             b"mn" => Some(Self::Mongolian),
             #[cfg(feature = "norwegian")]
             b"no" => Some(Self::Norwegian),
+            b"nb" => Some(Self::Norwegian),
+            b"nn" => Some(Self::Norwegian),
             #[cfg(feature = "portuguese")]
             b"pt" => Some(Self::Portuguese),
             #[cfg(feature = "russian")]
