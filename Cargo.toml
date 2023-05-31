@@ -39,6 +39,7 @@ full = [
     "norwegian",
     "portuguese",
     "russian",
+    "romanian",
     "serbian",
     "slovak",
     "slovenian",
@@ -72,6 +73,7 @@ mongolian = []
 norwegian = []
 portuguese = []
 russian = []
+romanian = []
 serbian = []
 slovak = []
 slovenian = []

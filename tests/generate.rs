@@ -30,6 +30,7 @@ fn generate_code() {
         ("Norwegian", "no", "Latn", "hyph-no.tex", 2, 2),
         ("Portuguese", "pt", "Latn", "hyph-pt.tex", 2, 3),
         ("Russian", "ru", "Cyrl", "hyph-ru.tex", 2, 2),
+        ("Romanian", "ro", "Latn", "hyph-ro.tex", 2, 2),
         ("Serbian", "sr", "Cyrl", "hyph-sh-cyrl.tex", 2, 2),
         ("Slovak", "sk", "Latn", "hyph-sk.tex", 2, 3),
         ("Slovenian", "sl", "Latn", "hyph-sl.tex", 2, 2),
