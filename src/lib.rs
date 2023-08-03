@@ -159,7 +159,7 @@ pub fn hyphenate_bounded(
     }
 
     // Break into segments at odd levels.
-    Syllables { word, cursor: 0, levels: levels.into_iter() }
+    Syllables { word, cursor: 0, levels }
 }
 
 /// Lowercase a word and add dots before and after it.

@@ -1,3 +1,5 @@
+#![allow(clippy::type_complexity)]
+
 use std::collections::HashMap;
 use std::fmt::{self, Write};
 use std::fs;
@@ -249,7 +251,7 @@ impl TrieBuilder {
 
         // Follow the existing transitions / add new ones.
         for b in pattern.bytes() {
-            if matches!(b, b'0'..=b'9') {
+            if b.is_ascii_digit() {
                 levels.push((dist, b - b'0'));
                 dist = 0;
             } else {
@@ -403,7 +405,7 @@ fn how_many_bytes(num: isize) -> usize {
         1
     } else if i16::try_from(num).is_ok() {
         2
-    } else if -(1 << 23) <= num && num < (1 << 23) {
+    } else if (-(1 << 23)..(1 << 23)).contains(&num) {
         3
     } else {
         panic!("too large number");
