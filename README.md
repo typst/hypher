@@ -29,9 +29,9 @@ assert_eq!(syllables.join("-"), "ex-ten-sive");
 
 ## Languages
 By default, this crate supports hyphenating more than 30 languages. Embedding
-automata for all these languages will add ~1.1 MiB to your binary. Alternatively,
-you can disable support for all languages and manually choose which ones get
-added:
+automata for all these languages will add ~1.1 MiB to your binary.
+Alternatively, you can disable support for all languages and manually choose
+which ones get added:
 
 ```toml
 [dependencies]
@@ -64,6 +64,7 @@ Each language added individually contributes:
 | Mongolian  | 4.9 KiB |
 | Dutch      | 63 KiB  |
 | Norwegian  | 153 KiB |
+| Polish     | 16 KiB  |
 | Portuguese | 343 B   |
 | Russian    | 33 KiB  |
 | Serbian    | 13 KiB  |

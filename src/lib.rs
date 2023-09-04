@@ -518,4 +518,10 @@ mod tests {
         test(Georgian, "შეყ-ვა-ნა");
         test(Georgian, "კარ-ტო-ფი-ლი");
     }
+
+    #[test]
+    #[cfg(feature = "polish")]
+    fn test_polish() {
+        test(Polish, "wy-kształ-ciu-chy");
+    }
 }
