@@ -155,7 +155,9 @@ impl Lang {
             b"mn" => Some(Self::Mongolian),
             #[cfg(feature = "norwegian")]
             b"no" => Some(Self::Norwegian),
+            #[cfg(feature = "norwegian")]
             b"nb" => Some(Self::Norwegian),
+            #[cfg(feature = "norwegian")]
             b"nn" => Some(Self::Norwegian),
             #[cfg(feature = "portuguese")]
             b"pt" => Some(Self::Portuguese),

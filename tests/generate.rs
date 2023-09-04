@@ -117,6 +117,8 @@ fn write_lang(
         write_cfg(w, &feature)?;
         writeln!(w, r#"            b"{iso}" => Some(Self::{name}),"#)?;
         for code in isos {
+            write!(w, "            ")?;
+            write_cfg(w, &feature)?;
             writeln!(w, r#"            b"{code}" => Some(Self::{name}),"#)?;
         }
     }
