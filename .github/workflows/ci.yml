@@ -7,15 +7,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: dtolnay/rust-toolchain@stable
-
       - run: cargo build
       - run: cargo build --no-default-features
-
-      - name: Test with just english
       - run: cargo test --lib --no-default-features --features english
-
-      - name: Test with all languages
       - run: cargo test --lib
-
-      - name: Test that generated code is fresh
       - run: cargo test --test generate
