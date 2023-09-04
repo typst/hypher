@@ -1,6 +1,6 @@
 [package]
 name = "hypher"
-version = "0.1.2"
+version = "0.1.3"
 authors = ["Laurenz <laurmaedje@gmail.com>"]
 edition = "2021"
 description = "hypher separates words into syllables."
