@@ -11,7 +11,7 @@ fn generate_code() {
         ("Afrikaans", "af", &[], "Latn", "hyph-af.tex", 1, 2),
         ("Belarusian", "be", &[], "Cyrl", "hyph-be.tex", 2, 2),
         ("Bulgarian", "bg", &[], "Cyrl", "hyph-bg.tex", 2, 2),
-        ("Czech", "cs", &[], "Latn", "hyph-cs-sojka.tex", 2, 3),
+        ("Czech", "cs", &[], "Latn", "hyph-cs-sojka.tex", 2, 2),
         ("Danish", "da", &[], "Latn", "hyph-da.tex", 2, 2),
         ("German", "de", &[], "Latn", "hyph-de-1996.tex", 2, 2),
         ("Greek", "el", &[], "Grek", "hyph-el-monoton.tex", 1, 1),

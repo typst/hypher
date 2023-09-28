@@ -529,7 +529,7 @@ mod tests {
     #[cfg(feature = "czech")]
     fn test_czech() {
         test(Czech, "po-ví-dá-me");
-        test(Czech, "nej-jas-něj-ší");
+        test(Czech, "nej-ja-s-něj-ší");
         test(Czech, "br-něn-ský");
     }
 }

@@ -210,7 +210,7 @@ impl Lang {
             #[cfg(feature = "croatian")]
             Self::Croatian => (2, 2),
             #[cfg(feature = "czech")]
-            Self::Czech => (2, 3),
+            Self::Czech => (2, 2),
             #[cfg(feature = "danish")]
             Self::Danish => (2, 2),
             #[cfg(feature = "dutch")]
