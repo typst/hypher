@@ -524,4 +524,12 @@ mod tests {
     fn test_polish() {
         test(Polish, "wy-kształ-ciu-chy");
     }
+
+    #[test]
+    #[cfg(feature = "czech")]
+    fn test_czech() {
+        test(Czech, "po-ví-dá-me");
+        test(Czech, "nej-jas-něj-ší");
+        test(Czech, "br-něn-ský");
+    }
 }
