@@ -7,10 +7,11 @@ use std::path::Path;
 
 #[test]
 fn generate_code() {
-    let mut languages: [(&str, &str, &[&str], &str, &str, u8, u8); 33] = [
+    let mut languages: [(&str, &str, &[&str], &str, &str, u8, u8); 34] = [
         ("Afrikaans", "af", &[], "Latn", "hyph-af.tex", 1, 2),
         ("Belarusian", "be", &[], "Cyrl", "hyph-be.tex", 2, 2),
         ("Bulgarian", "bg", &[], "Cyrl", "hyph-bg.tex", 2, 2),
+        ("Czech", "cs", &[], "Latn", "hyph-cs-sojka.tex", 2, 2),
         ("Danish", "da", &[], "Latn", "hyph-da.tex", 2, 2),
         ("German", "de", &[], "Latn", "hyph-de-1996.tex", 2, 2),
         ("Greek", "el", &[], "Grek", "hyph-el-monoton.tex", 1, 1),

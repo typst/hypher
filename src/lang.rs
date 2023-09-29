@@ -24,6 +24,9 @@ pub enum Lang {
     /// Hyphenation for _Croatian._ (Code: `hr`, Script, `Latn`, Feature: `croatian`)
     #[cfg(feature = "croatian")]
     Croatian,
+    /// Hyphenation for _Czech._ (Code: `cs`, Script, `Latn`, Feature: `czech`)
+    #[cfg(feature = "czech")]
+    Czech,
     /// Hyphenation for _Danish._ (Code: `da`, Script, `Latn`, Feature: `danish`)
     #[cfg(feature = "danish")]
     Danish,
@@ -124,6 +127,8 @@ impl Lang {
             b"bg" => Some(Self::Bulgarian),
             #[cfg(feature = "croatian")]
             b"hr" => Some(Self::Croatian),
+            #[cfg(feature = "czech")]
+            b"cs" => Some(Self::Czech),
             #[cfg(feature = "danish")]
             b"da" => Some(Self::Danish),
             #[cfg(feature = "dutch")]
@@ -204,6 +209,8 @@ impl Lang {
             Self::Bulgarian => (2, 2),
             #[cfg(feature = "croatian")]
             Self::Croatian => (2, 2),
+            #[cfg(feature = "czech")]
+            Self::Czech => (2, 2),
             #[cfg(feature = "danish")]
             Self::Danish => (2, 2),
             #[cfg(feature = "dutch")]
@@ -275,6 +282,8 @@ impl Lang {
             Self::Bulgarian => State::root(include_bytes!("../tries/bg.bin")),
             #[cfg(feature = "croatian")]
             Self::Croatian => State::root(include_bytes!("../tries/hr.bin")),
+            #[cfg(feature = "czech")]
+            Self::Czech => State::root(include_bytes!("../tries/cs.bin")),
             #[cfg(feature = "danish")]
             Self::Danish => State::root(include_bytes!("../tries/da.bin")),
             #[cfg(feature = "dutch")]
