@@ -45,6 +45,7 @@ Each language added individually contributes:
 | Afrikaans  | 60 KiB  |
 | Belarusian | 3.9 KiB |
 | Bulgarian  | 13 KiB  |
+| Czech      | 40 KiB  |
 | Danish     | 5.7 KiB |
 | German     | 192 KiB |
 | Greek      | 2.0 KiB |
