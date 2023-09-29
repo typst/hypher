@@ -43,27 +43,27 @@ Each language added individually contributes:
 | Language   | Space   |
 |------------|---------|
 | Afrikaans  | 60 KiB  |
+| Albanian   | 1.4 KiB |
 | Belarusian | 3.9 KiB |
 | Bulgarian  | 13 KiB  |
+| Croatian   | 2.0 KiB |
 | Czech      | 40 KiB  |
 | Danish     | 5.7 KiB |
-| German     | 192 KiB |
-| Greek      | 2.0 KiB |
+| Dutch      | 63 KiB  |
 | English    | 27 KiB  |
-| Spanish    | 14 KiB  |
 | Estonian   | 19 KiB  |
 | Finnish    | 1.3 KiB |
 | French     | 6.9 KiB |
-| Croatian   | 2.0 KiB |
+| Georgian   | 11 KiB  |
+| German     | 192 KiB |
+| Greek      | 2.0 KiB |
 | Hungarian  | 346 KiB |
 | Icelandic  | 21 KiB  |
 | Italian    | 1.6 KiB |
-| Georgian   | 11 KiB  |
 | Kurmanji   | 1.4 KiB |
 | Latin      | 1003 B  |
 | Lithuanian | 6.5 KiB |
 | Mongolian  | 4.9 KiB |
-| Dutch      | 63 KiB  |
 | Norwegian  | 153 KiB |
 | Polish     | 16 KiB  |
 | Portuguese | 343 B   |
@@ -71,10 +71,10 @@ Each language added individually contributes:
 | Serbian    | 13 KiB  |
 | Slovak     | 13 KiB  |
 | Slovenian  | 5.5 KiB |
-| Albanian   | 1.4 KiB |
+| Spanish    | 14 KiB  |
 | Swedish    | 24 KiB  |
-| Turkmen    | 1.4 KiB |
 | Turkish    | 526 B   |
+| Turkmen    | 1.4 KiB |
 | Ukrainian  | 21 KiB  |
 
 ## Benchmarks
