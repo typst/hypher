@@ -6,7 +6,7 @@ _hypher_ separates words into syllables.
   efficiently encoded finite automata at build time.
 - Zero load time: Hyphenation automata operate directly over the embedded
   binary data with no up-front decoding.
-- No allocations unless when hyphenating very long words (>= 39 bytes). You can
+- No allocations unless when hyphenating very long words (> 41 bytes). You can
   disable the `alloc` feature, but then overly long words lead to a panic.
 - Support for many languages.
 - No unsafe code, no dependencies, no std.
@@ -72,7 +72,7 @@ include!("lang.rs");
 ///
 /// # Panics
 ///
-/// Panics if the word is more than 38 bytes long and the `alloc` feature is
+/// Panics if the word is more than 41 bytes long and the `alloc` feature is
 /// disabled.
 ///
 /// # Example
@@ -279,7 +279,7 @@ impl Bytes {
             Self::Array([0; 40].into_iter(), len)
         } else {
             #[cfg(not(feature = "alloc"))]
-            panic!("hypher: maximum word length is 39 when `alloc` is disabled");
+            panic!("hypher: maximum word length is 41 when `alloc` is disabled");
 
             #[cfg(feature = "alloc")]
             Self::Vec(alloc::vec![0; len].into_iter())
