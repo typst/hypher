@@ -19,6 +19,7 @@ full = [
     "albanian",
     "belarusian",
     "bulgarian",
+    "catalan",
     "croatian",
     "czech",
     "danish",
@@ -54,6 +55,7 @@ afrikaans = []
 albanian = []
 belarusian = []
 bulgarian = []
+catalan = []
 croatian = []
 czech = []
 danish = []
