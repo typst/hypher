@@ -46,6 +46,7 @@ Each language added individually contributes:
 | Albanian   | 1.4 KiB |
 | Belarusian | 3.9 KiB |
 | Bulgarian  | 13 KiB  |
+| Catalan    | 1.7 KiB |
 | Croatian   | 2.0 KiB |
 | Czech      | 40 KiB  |
 | Danish     | 5.7 KiB |
