@@ -71,7 +71,6 @@ include!("lang.rs");
 /// This uses the default [bounds](Lang::bounds) for the language.
 ///
 /// # Panics
-///
 /// Panics if the word is more than 41 bytes long and the `alloc` feature is
 /// disabled.
 ///
@@ -96,8 +95,7 @@ pub fn hyphenate(word: &str, lang: Lang) -> Syllables<'_> {
 /// Returns an iterator over the syllables.
 ///
 /// # Panics
-///
-/// Panics if the word is more than 38 bytes long and the `alloc` feature is
+/// Panics if the word is more than 41 bytes long and the `alloc` feature is
 /// disabled.
 ///
 /// # Example
