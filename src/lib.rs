@@ -6,7 +6,7 @@ _hypher_ separates words into syllables.
   efficiently encoded finite automata at build time.
 - Zero load time: Hyphenation automata operate directly over the embedded
   binary data with no up-front decoding.
-- No allocations unless when hyphenating very long words (> 41 bytes). You can
+- No allocations unless when hyphenating very long words (> 45 bytes). You can
   disable the `alloc` feature, but then overly long words lead to a panic.
 - Support for many languages.
 - No unsafe code, no dependencies, no std.
@@ -40,10 +40,10 @@ assert_eq!(syllables.next(), None);
 )]
 /*!
 # Languages
-By default, this crate supports hyphenating more than 30 languages. Embedding
-automata for all these languages will add ~1.1 MiB to your binary. Alternatively,
-you can disable support for all languages and manually choose which ones get
-added:
+By default, this crate supports hyphenating more than 30 languages.
+Embedding automata for all these languages will add ~1.1 MiB to your binary.
+Alternatively, you can disable support for all languages and manually choose
+which ones get added:
 
 ```toml
 [dependencies]
@@ -60,6 +60,7 @@ extern crate alloc;
 
 use core::fmt::{self, Debug, Formatter};
 use core::iter::FusedIterator;
+use core::num::NonZeroU8;
 
 // Include language data.
 include!("lang.rs");
@@ -71,8 +72,8 @@ include!("lang.rs");
 /// This uses the default [bounds](Lang::bounds) for the language.
 ///
 /// # Panics
-/// Panics if the word is more than 41 bytes long and the `alloc` feature is
-/// disabled.
+/// Panics if the word is more than [`MAX_INLINE_SIZE`] bytes long and the `alloc`
+/// feature is disabled.
 ///
 /// # Example
 /// ```
@@ -89,14 +90,14 @@ pub fn hyphenate(word: &str, lang: Lang) -> Syllables<'_> {
     hyphenate_bounded(word, lang, left_min, right_min)
 }
 
-/// Segment a word into syllables, but forbid breaking betwen the given number
+/// Segment a word into syllables, but forbid breaking between the given number
 /// of chars to each side.
 ///
 /// Returns an iterator over the syllables.
 ///
 /// # Panics
-/// Panics if the word is more than 41 bytes long and the `alloc` feature is
-/// disabled.
+/// Panics if the word is more than [`MAX_INLINE_SIZE`] bytes long and the `alloc`
+/// feature is disabled.
 ///
 /// # Example
 /// By setting the left bound to three, we forbid the possible break between
@@ -262,10 +263,15 @@ impl ExactSizeIterator for Syllables<'_> {}
 
 impl FusedIterator for Syllables<'_> {}
 
+/// The maximum size (in bytes) of words that may be hyphenated without
+/// allocating.
+pub const MAX_INLINE_SIZE: usize = 45;
+const INLINE_BUF_SIZE: usize = MAX_INLINE_SIZE + 2; // +2 for dots
+
 /// Storage for and iterator over bytes.
 #[derive(Clone)]
 enum Bytes {
-    Array(core::array::IntoIter<u8, 40>, usize),
+    Array([u8; INLINE_BUF_SIZE], NonZeroU8),
     #[cfg(feature = "alloc")]
     Vec(alloc::vec::IntoIter<u8>),
 }
@@ -273,11 +279,15 @@ enum Bytes {
 impl Bytes {
     /// Create zero-initialized bytes.
     fn zeros(len: usize) -> Self {
-        if len <= 40 {
-            Self::Array([0; 40].into_iter(), len)
+        if len <= INLINE_BUF_SIZE {
+            // MAX+1-MAX is still nonzero, we can unwrap
+            let start = NonZeroU8::new(INLINE_BUF_SIZE as u8 + 1 - len as u8).unwrap();
+            Self::Array([0; INLINE_BUF_SIZE], start)
         } else {
             #[cfg(not(feature = "alloc"))]
-            panic!("hypher: maximum word length is 41 when `alloc` is disabled");
+            panic!(
+                "hypher: maximum word length is {MAX_INLINE_SIZE} bytes when `alloc` is disabled"
+            );
 
             #[cfg(feature = "alloc")]
             Self::Vec(alloc::vec![0; len].into_iter())
@@ -287,7 +297,7 @@ impl Bytes {
     /// Access the bytes as a slice.
     fn as_slice(&self) -> &[u8] {
         match self {
-            Self::Array(iter, len) => &iter.as_slice()[..*len],
+            Self::Array(arr, start) => &arr[start.get() as usize - 1..],
             #[cfg(feature = "alloc")]
             Self::Vec(iter) => iter.as_slice(),
         }
@@ -296,7 +306,7 @@ impl Bytes {
     /// Access the bytes as a mutable slice.
     fn as_mut_slice(&mut self) -> &mut [u8] {
         match self {
-            Self::Array(iter, len) => &mut iter.as_mut_slice()[..*len],
+            Self::Array(arr, start) => &mut arr[start.get() as usize - 1..],
             #[cfg(feature = "alloc")]
             Self::Vec(iter) => iter.as_mut_slice(),
         }
@@ -308,10 +318,11 @@ impl Iterator for Bytes {
 
     fn next(&mut self) -> Option<Self::Item> {
         match self {
-            Self::Array(iter, len) => {
-                if *len > 0 {
-                    *len -= 1;
-                    iter.next()
+            Self::Array(arr, start) => {
+                let index = start.get() as usize - 1;
+                if index < INLINE_BUF_SIZE {
+                    *start = start.saturating_add(1); // Will never reach 255 anyways.
+                    Some(arr[index])
                 } else {
                     None
                 }
@@ -323,7 +334,7 @@ impl Iterator for Bytes {
 
     fn size_hint(&self) -> (usize, Option<usize>) {
         match self {
-            Self::Array(_, len) => (*len, Some(*len)),
+            Self::Array(..) => (self.as_slice().len(), Some(self.as_slice().len())),
             #[cfg(feature = "alloc")]
             Self::Vec(iter) => iter.size_hint(),
         }
@@ -442,7 +453,7 @@ fn is_char_boundary(b: u8) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use super::{hyphenate, Lang};
+    use super::{hyphenate, Lang, MAX_INLINE_SIZE};
 
     #[allow(unused)]
     use Lang::*;
@@ -457,16 +468,39 @@ mod tests {
     #[test]
     #[cfg(feature = "english")]
     fn test_empty() {
-        let mut syllables = hyphenate("", Lang::English);
+        let mut syllables = hyphenate("", English);
         assert_eq!(syllables.next(), None);
     }
 
     #[test]
     #[cfg(feature = "english")]
     fn test_exact() {
-        assert_eq!(hyphenate("", Lang::English).len(), 0);
-        assert_eq!(hyphenate("hello", Lang::English).len(), 1);
-        assert_eq!(hyphenate("extensive", Lang::English).len(), 3);
+        assert_eq!(hyphenate("", English).len(), 0);
+        assert_eq!(hyphenate("hello", English).len(), 1);
+        assert_eq!(hyphenate("extensive", English).len(), 3);
+    }
+
+    const LONG_WORD: &str = "thisisaverylongstringwithanunrealisticwordlengthforenglishbutitmightbepossibleinanotherlanguage";
+
+    #[test]
+    #[cfg(all(feature = "english", feature = "alloc"))]
+    fn test_alloc() {
+        assert_eq!(hyphenate(&LONG_WORD[..MAX_INLINE_SIZE - 1], English).len(), 13);
+        assert_eq!(hyphenate(&LONG_WORD[..MAX_INLINE_SIZE], English).len(), 12);
+        assert_eq!(hyphenate(&LONG_WORD[..MAX_INLINE_SIZE + 1], English).len(), 12);
+        assert_eq!(hyphenate(LONG_WORD, English).len(), 25);
+    }
+
+    #[test]
+    #[cfg(all(feature = "english", not(feature = "alloc")))]
+    fn test_nonalloc() {
+        _ = hyphenate(&LONG_WORD[..MAX_INLINE_SIZE], English).count();
+    }
+    #[test]
+    #[should_panic]
+    #[cfg(all(feature = "english", not(feature = "alloc")))]
+    fn test_nonalloc_fail() {
+        _ = hyphenate(&LONG_WORD[..MAX_INLINE_SIZE + 1], English).count();
     }
 
     #[test]
