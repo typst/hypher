@@ -56,7 +56,7 @@ Each language added individually contributes:
 | Finnish    | 1.3 KiB |
 | French     | 6.9 KiB |
 | Georgian   | 11 KiB  |
-| German     | 192 KiB |
+| German     | 201 KiB |
 | Greek      | 2.0 KiB |
 | Hungarian  | 346 KiB |
 | Icelandic  | 21 KiB  |
@@ -67,7 +67,7 @@ Each language added individually contributes:
 | Mongolian  | 4.9 KiB |
 | Norwegian  | 153 KiB |
 | Polish     | 16 KiB  |
-| Portuguese | 343 B   |
+| Portuguese | 1.0 KiB |
 | Russian    | 33 KiB  |
 | Serbian    | 13 KiB  |
 | Slovak     | 13 KiB  |
