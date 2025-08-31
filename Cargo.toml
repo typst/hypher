@@ -28,6 +28,7 @@ full = [
     "estonian",
     "finnish",
     "french",
+    "galician",
     "georgian",
     "german",
     "greek",
@@ -64,6 +65,7 @@ english = []
 estonian = []
 finnish = []
 french = []
+galician = []
 georgian = []
 german = []
 greek = []
