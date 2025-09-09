@@ -2,13 +2,34 @@ name: Continuous integration
 on: [push, pull_request]
 
 jobs:
-  ci:
+  tests:
+    name: Tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@1.88
       - run: cargo build
       - run: cargo build --no-default-features
       - run: cargo test --lib --no-default-features --features english
       - run: cargo test --lib
       - run: cargo test --test generate
+
+  checks:
+    name: Check clippy, formatting, and documentation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.88.0
+        with:
+          components: clippy, rustfmt
+      - run: cargo clippy --workspace --all-targets --all-features
+      - run: cargo fmt --check --all
+      - run: cargo doc --workspace --no-deps
+
+  min-version:
+    name: Check minimum Rust version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@1.64.0
+      - run: cargo check --workspace
