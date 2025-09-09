@@ -1,6 +1,7 @@
 [package]
 name = "hypher"
 version = "0.1.5"
+rust-version = "1.64" # also change in ci.yml
 authors = ["Laurenz <laurmaedje@gmail.com>"]
 edition = "2021"
 description = "hypher separates words into syllables."
