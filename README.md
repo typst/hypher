@@ -55,6 +55,7 @@ Each language added individually contributes:
 | Estonian   | 19 KiB  |
 | Finnish    | 1.3 KiB |
 | French     | 6.9 KiB |
+| Galician   | 7.3 KiB |
 | Georgian   | 11 KiB  |
 | German     | 201 KiB |
 | Greek      | 2.0 KiB |
