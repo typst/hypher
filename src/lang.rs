@@ -48,6 +48,9 @@ pub enum Lang {
     /// Hyphenation for _French._ (Code: `fr`, Script, `Latn`, Feature: `french`)
     #[cfg(feature = "french")]
     French,
+    /// Hyphenation for _Galician._ (Code: `gl`, Script, `Latn`, Feature: `galician`)
+    #[cfg(feature = "galician")]
+    Galician,
     /// Hyphenation for _Georgian._ (Code: `ka`, Script, `Geor`, Feature: `georgian`)
     #[cfg(feature = "georgian")]
     Georgian,
@@ -146,6 +149,8 @@ impl Lang {
             b"fi" => Some(Self::Finnish),
             #[cfg(feature = "french")]
             b"fr" => Some(Self::French),
+            #[cfg(feature = "galician")]
+            b"gl" => Some(Self::Galician),
             #[cfg(feature = "georgian")]
             b"ka" => Some(Self::Georgian),
             #[cfg(feature = "german")]
@@ -230,6 +235,8 @@ impl Lang {
             Self::Finnish => (2, 2),
             #[cfg(feature = "french")]
             Self::French => (2, 2),
+            #[cfg(feature = "galician")]
+            Self::Galician => (2, 2),
             #[cfg(feature = "georgian")]
             Self::Georgian => (1, 2),
             #[cfg(feature = "german")]
@@ -305,6 +312,8 @@ impl Lang {
             Self::Finnish => State::root(include_bytes!("../tries/fi.bin")),
             #[cfg(feature = "french")]
             Self::French => State::root(include_bytes!("../tries/fr.bin")),
+            #[cfg(feature = "galician")]
+            Self::Galician => State::root(include_bytes!("../tries/gl.bin")),
             #[cfg(feature = "georgian")]
             Self::Georgian => State::root(include_bytes!("../tries/ka.bin")),
             #[cfg(feature = "german")]
