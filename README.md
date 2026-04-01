@@ -28,7 +28,7 @@ assert_eq!(syllables.join("-"), "ex-ten-sive");
 ```
 
 ## Languages
-By default, this crate supports hyphenating more than 30 languages. Embedding
+By default, this crate supports hyphenating 48 languages. Embedding
 automata for all these languages will add ~1.1 MiB to your binary.
 Alternatively, you can disable support for all languages and manually choose
 which ones get added:
@@ -44,7 +44,9 @@ Each language added individually contributes:
 |------------|---------|
 | Afrikaans  | 60 KiB  |
 | Albanian   | 1.4 KiB |
+| Assamese   | 209 B   |
 | Belarusian | 3.9 KiB |
+| Bengali    | 209 B   |
 | Bulgarian  | 13 KiB  |
 | Catalan    | 1.7 KiB |
 | Croatian   | 2.0 KiB |
@@ -59,22 +61,32 @@ Each language added individually contributes:
 | Georgian   | 11 KiB  |
 | German     | 201 KiB |
 | Greek      | 2.0 KiB |
+| Gujarati   | 191 B   |
+| Hindi      | 202 B   |
 | Hungarian  | 346 KiB |
 | Icelandic  | 21 KiB  |
 | Italian    | 1.6 KiB |
+| Kannada    | 208 B   |
 | Kurmanji   | 1.4 KiB |
 | Latin      | 1003 B  |
 | Lithuanian | 6.5 KiB |
+| Malayalam  | 244 B   |
+| Marathi    | 202 B   |
 | Mongolian  | 4.9 KiB |
 | Norwegian  | 153 KiB |
+| Oriya      | 188 B   |
+| Panjabi    | 176 B   |
 | Polish     | 16 KiB  |
 | Portuguese | 1.0 KiB |
 | Russian    | 33 KiB  |
+| Sanskrit   | 2.0 KiB |
 | Serbian    | 13 KiB  |
 | Slovak     | 13 KiB  |
 | Slovenian  | 5.5 KiB |
 | Spanish    | 14 KiB  |
 | Swedish    | 24 KiB  |
+| Tamil      | 178 B   |
+| Telugu     | 206 B   |
 | Turkish    | 526 B   |
 | Turkmen    | 1.4 KiB |
 | Ukrainian  | 21 KiB  |

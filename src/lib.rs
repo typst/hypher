@@ -564,4 +564,18 @@ mod tests {
         test(Czech, "nej-ja-s-něj-ší");
         test(Czech, "br-něn-ský");
     }
+
+    #[test]
+    #[cfg(feature = "malayalam")]
+    fn test_malayalam() {
+        test(Malayalam, "വി-ദ്യാർ-ത്ഥി");
+        test(Malayalam, "പഠി-ക്കുക");
+    }
+
+    #[test]
+    #[cfg(feature = "hindi")]
+    fn test_hindi() {
+        test(Hindi, "वि-द्या-र्थी");
+        test(Hindi, "पढ़-ना");
+    }
 }

@@ -15,9 +15,15 @@ pub enum Lang {
     /// Hyphenation for _Albanian._ (Code: `sq`, Script, `Latn`, Feature: `albanian`)
     #[cfg(feature = "albanian")]
     Albanian,
+    /// Hyphenation for _Assamese._ (Code: `as`, Script, `Beng`, Feature: `assamese`)
+    #[cfg(feature = "assamese")]
+    Assamese,
     /// Hyphenation for _Belarusian._ (Code: `be`, Script, `Cyrl`, Feature: `belarusian`)
     #[cfg(feature = "belarusian")]
     Belarusian,
+    /// Hyphenation for _Bengali._ (Code: `bn`, Script, `Beng`, Feature: `bengali`)
+    #[cfg(feature = "bengali")]
+    Bengali,
     /// Hyphenation for _Bulgarian._ (Code: `bg`, Script, `Cyrl`, Feature: `bulgarian`)
     #[cfg(feature = "bulgarian")]
     Bulgarian,
@@ -60,6 +66,12 @@ pub enum Lang {
     /// Hyphenation for _Greek._ (Code: `el`, Script, `Grek`, Feature: `greek`)
     #[cfg(feature = "greek")]
     Greek,
+    /// Hyphenation for _Gujarati._ (Code: `gu`, Script, `Gujr`, Feature: `gujarati`)
+    #[cfg(feature = "gujarati")]
+    Gujarati,
+    /// Hyphenation for _Hindi._ (Code: `hi`, Script, `Deva`, Feature: `hindi`)
+    #[cfg(feature = "hindi")]
+    Hindi,
     /// Hyphenation for _Hungarian._ (Code: `hu`, Script, `Latn`, Feature: `hungarian`)
     #[cfg(feature = "hungarian")]
     Hungarian,
@@ -69,6 +81,9 @@ pub enum Lang {
     /// Hyphenation for _Italian._ (Code: `it`, Script, `Latn`, Feature: `italian`)
     #[cfg(feature = "italian")]
     Italian,
+    /// Hyphenation for _Kannada._ (Code: `kn`, Script, `Knda`, Feature: `kannada`)
+    #[cfg(feature = "kannada")]
+    Kannada,
     /// Hyphenation for _Kurmanji._ (Code: `ku`, Script, `Latn`, Feature: `kurmanji`)
     #[cfg(feature = "kurmanji")]
     Kurmanji,
@@ -78,12 +93,24 @@ pub enum Lang {
     /// Hyphenation for _Lithuanian._ (Code: `lt`, Script, `Latn`, Feature: `lithuanian`)
     #[cfg(feature = "lithuanian")]
     Lithuanian,
+    /// Hyphenation for _Malayalam._ (Code: `ml`, Script, `Mlym`, Feature: `malayalam`)
+    #[cfg(feature = "malayalam")]
+    Malayalam,
+    /// Hyphenation for _Marathi._ (Code: `mr`, Script, `Deva`, Feature: `marathi`)
+    #[cfg(feature = "marathi")]
+    Marathi,
     /// Hyphenation for _Mongolian._ (Code: `mn`, Script, `Cyrl`, Feature: `mongolian`)
     #[cfg(feature = "mongolian")]
     Mongolian,
     /// Hyphenation for _Norwegian._ (Code: `no`, Alias: `nb`, Alias: `nn`, Script, `Latn`, Feature: `norwegian`)
     #[cfg(feature = "norwegian")]
     Norwegian,
+    /// Hyphenation for _Oriya._ (Code: `or`, Script, `Orya`, Feature: `oriya`)
+    #[cfg(feature = "oriya")]
+    Oriya,
+    /// Hyphenation for _Panjabi._ (Code: `pa`, Script, `Guru`, Feature: `panjabi`)
+    #[cfg(feature = "panjabi")]
+    Panjabi,
     /// Hyphenation for _Polish._ (Code: `pl`, Script, `Latn`, Feature: `polish`)
     #[cfg(feature = "polish")]
     Polish,
@@ -93,6 +120,9 @@ pub enum Lang {
     /// Hyphenation for _Russian._ (Code: `ru`, Script, `Cyrl`, Feature: `russian`)
     #[cfg(feature = "russian")]
     Russian,
+    /// Hyphenation for _Sanskrit._ (Code: `sa`, Script, `Deva`, Feature: `sanskrit`)
+    #[cfg(feature = "sanskrit")]
+    Sanskrit,
     /// Hyphenation for _Serbian._ (Code: `sr`, Script, `Cyrl`, Feature: `serbian`)
     #[cfg(feature = "serbian")]
     Serbian,
@@ -108,6 +138,12 @@ pub enum Lang {
     /// Hyphenation for _Swedish._ (Code: `sv`, Script, `Latn`, Feature: `swedish`)
     #[cfg(feature = "swedish")]
     Swedish,
+    /// Hyphenation for _Tamil._ (Code: `ta`, Script, `Taml`, Feature: `tamil`)
+    #[cfg(feature = "tamil")]
+    Tamil,
+    /// Hyphenation for _Telugu._ (Code: `te`, Script, `Telu`, Feature: `telugu`)
+    #[cfg(feature = "telugu")]
+    Telugu,
     /// Hyphenation for _Turkish._ (Code: `tr`, Script, `Latn`, Feature: `turkish`)
     #[cfg(feature = "turkish")]
     Turkish,
@@ -127,8 +163,12 @@ impl Lang {
             b"af" => Some(Self::Afrikaans),
             #[cfg(feature = "albanian")]
             b"sq" => Some(Self::Albanian),
+            #[cfg(feature = "assamese")]
+            b"as" => Some(Self::Assamese),
             #[cfg(feature = "belarusian")]
             b"be" => Some(Self::Belarusian),
+            #[cfg(feature = "bengali")]
+            b"bn" => Some(Self::Bengali),
             #[cfg(feature = "bulgarian")]
             b"bg" => Some(Self::Bulgarian),
             #[cfg(feature = "catalan")]
@@ -157,18 +197,28 @@ impl Lang {
             b"de" => Some(Self::German),
             #[cfg(feature = "greek")]
             b"el" => Some(Self::Greek),
+            #[cfg(feature = "gujarati")]
+            b"gu" => Some(Self::Gujarati),
+            #[cfg(feature = "hindi")]
+            b"hi" => Some(Self::Hindi),
             #[cfg(feature = "hungarian")]
             b"hu" => Some(Self::Hungarian),
             #[cfg(feature = "icelandic")]
             b"is" => Some(Self::Icelandic),
             #[cfg(feature = "italian")]
             b"it" => Some(Self::Italian),
+            #[cfg(feature = "kannada")]
+            b"kn" => Some(Self::Kannada),
             #[cfg(feature = "kurmanji")]
             b"ku" => Some(Self::Kurmanji),
             #[cfg(feature = "latin")]
             b"la" => Some(Self::Latin),
             #[cfg(feature = "lithuanian")]
             b"lt" => Some(Self::Lithuanian),
+            #[cfg(feature = "malayalam")]
+            b"ml" => Some(Self::Malayalam),
+            #[cfg(feature = "marathi")]
+            b"mr" => Some(Self::Marathi),
             #[cfg(feature = "mongolian")]
             b"mn" => Some(Self::Mongolian),
             #[cfg(feature = "norwegian")]
@@ -177,12 +227,18 @@ impl Lang {
             b"nb" => Some(Self::Norwegian),
             #[cfg(feature = "norwegian")]
             b"nn" => Some(Self::Norwegian),
+            #[cfg(feature = "oriya")]
+            b"or" => Some(Self::Oriya),
+            #[cfg(feature = "panjabi")]
+            b"pa" => Some(Self::Panjabi),
             #[cfg(feature = "polish")]
             b"pl" => Some(Self::Polish),
             #[cfg(feature = "portuguese")]
             b"pt" => Some(Self::Portuguese),
             #[cfg(feature = "russian")]
             b"ru" => Some(Self::Russian),
+            #[cfg(feature = "sanskrit")]
+            b"sa" => Some(Self::Sanskrit),
             #[cfg(feature = "serbian")]
             b"sr" => Some(Self::Serbian),
             #[cfg(feature = "slovak")]
@@ -193,6 +249,10 @@ impl Lang {
             b"es" => Some(Self::Spanish),
             #[cfg(feature = "swedish")]
             b"sv" => Some(Self::Swedish),
+            #[cfg(feature = "tamil")]
+            b"ta" => Some(Self::Tamil),
+            #[cfg(feature = "telugu")]
+            b"te" => Some(Self::Telugu),
             #[cfg(feature = "turkish")]
             b"tr" => Some(Self::Turkish),
             #[cfg(feature = "turkmen")]
@@ -213,8 +273,12 @@ impl Lang {
             Self::Afrikaans => (1, 2),
             #[cfg(feature = "albanian")]
             Self::Albanian => (2, 2),
+            #[cfg(feature = "assamese")]
+            Self::Assamese => (2, 2),
             #[cfg(feature = "belarusian")]
             Self::Belarusian => (2, 2),
+            #[cfg(feature = "bengali")]
+            Self::Bengali => (2, 2),
             #[cfg(feature = "bulgarian")]
             Self::Bulgarian => (2, 2),
             #[cfg(feature = "catalan")]
@@ -243,28 +307,44 @@ impl Lang {
             Self::German => (2, 2),
             #[cfg(feature = "greek")]
             Self::Greek => (1, 1),
+            #[cfg(feature = "gujarati")]
+            Self::Gujarati => (2, 2),
+            #[cfg(feature = "hindi")]
+            Self::Hindi => (2, 2),
             #[cfg(feature = "hungarian")]
             Self::Hungarian => (2, 2),
             #[cfg(feature = "icelandic")]
             Self::Icelandic => (2, 2),
             #[cfg(feature = "italian")]
             Self::Italian => (2, 2),
+            #[cfg(feature = "kannada")]
+            Self::Kannada => (2, 2),
             #[cfg(feature = "kurmanji")]
             Self::Kurmanji => (2, 2),
             #[cfg(feature = "latin")]
             Self::Latin => (2, 2),
             #[cfg(feature = "lithuanian")]
             Self::Lithuanian => (2, 2),
+            #[cfg(feature = "malayalam")]
+            Self::Malayalam => (2, 2),
+            #[cfg(feature = "marathi")]
+            Self::Marathi => (2, 2),
             #[cfg(feature = "mongolian")]
             Self::Mongolian => (2, 2),
             #[cfg(feature = "norwegian")]
             Self::Norwegian => (2, 2),
+            #[cfg(feature = "oriya")]
+            Self::Oriya => (2, 2),
+            #[cfg(feature = "panjabi")]
+            Self::Panjabi => (2, 2),
             #[cfg(feature = "polish")]
             Self::Polish => (2, 2),
             #[cfg(feature = "portuguese")]
             Self::Portuguese => (2, 3),
             #[cfg(feature = "russian")]
             Self::Russian => (2, 2),
+            #[cfg(feature = "sanskrit")]
+            Self::Sanskrit => (2, 2),
             #[cfg(feature = "serbian")]
             Self::Serbian => (2, 2),
             #[cfg(feature = "slovak")]
@@ -275,6 +355,10 @@ impl Lang {
             Self::Spanish => (2, 2),
             #[cfg(feature = "swedish")]
             Self::Swedish => (2, 2),
+            #[cfg(feature = "tamil")]
+            Self::Tamil => (2, 2),
+            #[cfg(feature = "telugu")]
+            Self::Telugu => (2, 2),
             #[cfg(feature = "turkish")]
             Self::Turkish => (2, 2),
             #[cfg(feature = "turkmen")]
@@ -290,8 +374,12 @@ impl Lang {
             Self::Afrikaans => State::root(include_bytes!("../tries/af.bin")),
             #[cfg(feature = "albanian")]
             Self::Albanian => State::root(include_bytes!("../tries/sq.bin")),
+            #[cfg(feature = "assamese")]
+            Self::Assamese => State::root(include_bytes!("../tries/as.bin")),
             #[cfg(feature = "belarusian")]
             Self::Belarusian => State::root(include_bytes!("../tries/be.bin")),
+            #[cfg(feature = "bengali")]
+            Self::Bengali => State::root(include_bytes!("../tries/bn.bin")),
             #[cfg(feature = "bulgarian")]
             Self::Bulgarian => State::root(include_bytes!("../tries/bg.bin")),
             #[cfg(feature = "catalan")]
@@ -320,28 +408,44 @@ impl Lang {
             Self::German => State::root(include_bytes!("../tries/de.bin")),
             #[cfg(feature = "greek")]
             Self::Greek => State::root(include_bytes!("../tries/el.bin")),
+            #[cfg(feature = "gujarati")]
+            Self::Gujarati => State::root(include_bytes!("../tries/gu.bin")),
+            #[cfg(feature = "hindi")]
+            Self::Hindi => State::root(include_bytes!("../tries/hi.bin")),
             #[cfg(feature = "hungarian")]
             Self::Hungarian => State::root(include_bytes!("../tries/hu.bin")),
             #[cfg(feature = "icelandic")]
             Self::Icelandic => State::root(include_bytes!("../tries/is.bin")),
             #[cfg(feature = "italian")]
             Self::Italian => State::root(include_bytes!("../tries/it.bin")),
+            #[cfg(feature = "kannada")]
+            Self::Kannada => State::root(include_bytes!("../tries/kn.bin")),
             #[cfg(feature = "kurmanji")]
             Self::Kurmanji => State::root(include_bytes!("../tries/ku.bin")),
             #[cfg(feature = "latin")]
             Self::Latin => State::root(include_bytes!("../tries/la.bin")),
             #[cfg(feature = "lithuanian")]
             Self::Lithuanian => State::root(include_bytes!("../tries/lt.bin")),
+            #[cfg(feature = "malayalam")]
+            Self::Malayalam => State::root(include_bytes!("../tries/ml.bin")),
+            #[cfg(feature = "marathi")]
+            Self::Marathi => State::root(include_bytes!("../tries/mr.bin")),
             #[cfg(feature = "mongolian")]
             Self::Mongolian => State::root(include_bytes!("../tries/mn.bin")),
             #[cfg(feature = "norwegian")]
             Self::Norwegian => State::root(include_bytes!("../tries/no.bin")),
+            #[cfg(feature = "oriya")]
+            Self::Oriya => State::root(include_bytes!("../tries/or.bin")),
+            #[cfg(feature = "panjabi")]
+            Self::Panjabi => State::root(include_bytes!("../tries/pa.bin")),
             #[cfg(feature = "polish")]
             Self::Polish => State::root(include_bytes!("../tries/pl.bin")),
             #[cfg(feature = "portuguese")]
             Self::Portuguese => State::root(include_bytes!("../tries/pt.bin")),
             #[cfg(feature = "russian")]
             Self::Russian => State::root(include_bytes!("../tries/ru.bin")),
+            #[cfg(feature = "sanskrit")]
+            Self::Sanskrit => State::root(include_bytes!("../tries/sa.bin")),
             #[cfg(feature = "serbian")]
             Self::Serbian => State::root(include_bytes!("../tries/sr.bin")),
             #[cfg(feature = "slovak")]
@@ -352,6 +456,10 @@ impl Lang {
             Self::Spanish => State::root(include_bytes!("../tries/es.bin")),
             #[cfg(feature = "swedish")]
             Self::Swedish => State::root(include_bytes!("../tries/sv.bin")),
+            #[cfg(feature = "tamil")]
+            Self::Tamil => State::root(include_bytes!("../tries/ta.bin")),
+            #[cfg(feature = "telugu")]
+            Self::Telugu => State::root(include_bytes!("../tries/te.bin")),
             #[cfg(feature = "turkish")]
             Self::Turkish => State::root(include_bytes!("../tries/tr.bin")),
             #[cfg(feature = "turkmen")]
