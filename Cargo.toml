@@ -18,6 +18,8 @@ alloc = []
 full = [
     "afrikaans",
     "albanian",
+    "assamese",
+    "bengali",
     "belarusian",
     "bulgarian",
     "catalan",
@@ -33,28 +35,40 @@ full = [
     "georgian",
     "german",
     "greek",
+    "gujarati",
+    "hindi",
     "hungarian",
     "icelandic",
     "italian",
+    "kannada",
     "kurmanji",
     "latin",
     "lithuanian",
+    "malayalam",
+    "marathi",
     "mongolian",
     "norwegian",
+    "oriya",
+    "panjabi",
     "polish",
     "portuguese",
     "russian",
+    "sanskrit",
     "serbian",
     "slovak",
     "slovenian",
     "spanish",
     "swedish",
+    "tamil",
+    "telugu",
     "turkish",
     "turkmen",
     "ukrainian",
 ]
 afrikaans = []
 albanian = []
+assamese = []
+bengali = []
 belarusian = []
 bulgarian = []
 catalan = []
@@ -70,22 +84,32 @@ galician = []
 georgian = []
 german = []
 greek = []
+gujarati = []
+hindi = []
 hungarian = []
 icelandic = []
 italian = []
+kannada = []
 kurmanji = []
 latin = []
 lithuanian = []
+malayalam = []
+marathi = []
 mongolian = []
 norwegian = []
+oriya = []
+panjabi = []
 polish = []
 portuguese = []
 russian = []
+sanskrit = []
 serbian = []
 slovak = []
 slovenian = []
 spanish = []
 swedish = []
+tamil = []
+telugu = []
 turkish = []
 turkmen = []
 ukrainian = []
