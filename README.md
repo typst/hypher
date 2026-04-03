@@ -18,6 +18,8 @@ hypher = "0.1"
   disable the `alloc` feature, but then overly long words lead to a panic.
 - Support for many languages.
 - No unsafe code, no dependencies, no std.
+- Hyphenation character awareness: `Lang::hyphenation_character()` returns
+  `None` for Indic scripts where visual hyphenation is not conventional.
 
 ## Example
 ```rust
