@@ -160,6 +160,30 @@ fn write_lang(
     writeln!(w, "    }}")?;
     writeln!(w)?;
 
+    // Implementation of `hyphenation_character`.
+    writeln!(w, "    /// The default character used to join syllables.")?;
+    writeln!(w, "    ///")?;
+    writeln!(w, "    /// Returns `Some('\\u{{ad}}')` (SOFT HYPHEN) for most languages, but `None`")?;
+    writeln!(
+        w,
+        "    /// for Indic scripts where visual hyphenation is not conventional."
+    )?;
+    writeln!(w, "    pub fn hyphenation_character(self) -> Option<char> {{")?;
+    writeln!(w, "        match self {{")?;
+    for &(name, _, _, script, ..) in languages {
+        if !is_indic_script(script) {
+            continue;
+        }
+        let feature = name.to_lowercase();
+        write!(w, "            ")?;
+        write_cfg(w, &feature)?;
+        writeln!(w, "            Self::{name} => None,")?;
+    }
+    writeln!(w, "            _ => Some('\\u{{ad}}'),")?;
+    writeln!(w, "        }}")?;
+    writeln!(w, "    }}")?;
+    writeln!(w)?;
+
     // Implementation of `root`.
     writeln!(w, "    fn root(self) -> State<'static> {{")?;
     writeln!(w, "        match self {{")?;
@@ -173,6 +197,14 @@ fn write_lang(
     writeln!(w, "        }}")?;
     writeln!(w, "    }}")?;
     writeln!(w, "}}")
+}
+
+/// Returns true for Indic scripts where visual hyphenation is not conventional.
+fn is_indic_script(script: &str) -> bool {
+    matches!(
+        script,
+        "Beng" | "Deva" | "Gujr" | "Guru" | "Knda" | "Mlym" | "Orya" | "Taml" | "Telu"
+    )
 }
 
 fn write_cfg(w: &mut String, feature: &str) -> fmt::Result {

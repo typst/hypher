@@ -368,6 +368,40 @@ impl Lang {
         }
     }
 
+    /// The default character used to join syllables.
+    ///
+    /// Returns `Some('\u{ad}')` (SOFT HYPHEN) for most languages, but `None`
+    /// for Indic scripts where visual hyphenation is not conventional.
+    pub fn hyphenation_character(self) -> Option<char> {
+        match self {
+            #[cfg(feature = "assamese")]
+            Self::Assamese => None,
+            #[cfg(feature = "bengali")]
+            Self::Bengali => None,
+            #[cfg(feature = "gujarati")]
+            Self::Gujarati => None,
+            #[cfg(feature = "hindi")]
+            Self::Hindi => None,
+            #[cfg(feature = "kannada")]
+            Self::Kannada => None,
+            #[cfg(feature = "malayalam")]
+            Self::Malayalam => None,
+            #[cfg(feature = "marathi")]
+            Self::Marathi => None,
+            #[cfg(feature = "oriya")]
+            Self::Oriya => None,
+            #[cfg(feature = "panjabi")]
+            Self::Panjabi => None,
+            #[cfg(feature = "sanskrit")]
+            Self::Sanskrit => None,
+            #[cfg(feature = "tamil")]
+            Self::Tamil => None,
+            #[cfg(feature = "telugu")]
+            Self::Telugu => None,
+            _ => Some('\u{ad}'),
+        }
+    }
+
     fn root(self) -> State<'static> {
         match self {
             #[cfg(feature = "afrikaans")]
