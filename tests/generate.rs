@@ -22,7 +22,7 @@ fn generate_code() {
         ("English", "en", &[], "Latn", "hyph-en-us.tex", 2, 3),
         ("Spanish", "es", &[], "Latn", "hyph-es.tex", 2, 2),
         ("Estonian", "et", &[], "Latn", "hyph-et.tex", 2, 3),
-        ("Finnish", "fi", &[], "Latn", "hyph-fi.tex", 2, 2),
+        ("Finnish", "fi", &[], "Latn", "hyph-fi-x-school.tex", 2, 2),
         ("French", "fr", &[], "Latn", "hyph-fr.tex", 2, 2),
         ("Gujarati", "gu", &[], "Gujr", "hyph-gu.tex", 2, 2),
         ("Hindi", "hi", &[], "Deva", "hyph-hi.tex", 2, 2),
