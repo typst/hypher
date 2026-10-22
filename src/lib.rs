@@ -520,6 +520,29 @@ mod tests {
     }
 
     #[test]
+    #[cfg(feature = "englishgb")]
+    fn test_english_gb() {
+        test(EnglishGB, "");
+        test(EnglishGB, "present");
+        test(EnglishGB, "re-corder");
+        test(EnglishGB, "labor-at-ory");
+        test(EnglishGB, "re-cog-ni-tion");
+        test(EnglishGB, "Re-CoG-nI-tIoN");
+        test(EnglishGB, "ex-tens-ive");
+        test(EnglishGB, "col-our-ful");
+        test(EnglishGB, "cata-logue");
+    }
+
+    #[test]
+    #[cfg(feature = "englishgb")]
+    fn test_english_gb_not_selected_by_iso() {
+        #[cfg(feature = "english")]
+        assert_eq!(Lang::from_iso(*b"en"), Some(English));
+        #[cfg(not(feature = "english"))]
+        assert_eq!(Lang::from_iso(*b"en"), None);
+    }
+
+    #[test]
     #[cfg(feature = "german")]
     fn test_german() {
         test(German, "");

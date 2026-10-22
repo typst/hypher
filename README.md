@@ -30,8 +30,9 @@ assert_eq!(syllables.join("-"), "ex-ten-sive");
 ```
 
 ## Languages
-By default, this crate supports hyphenating 48 languages. Embedding
-automata for all these languages will add ~1.1 MiB to your binary.
+By default, this crate supports hyphenating 48 languages plus a British
+English variant. Embedding automata for all of them will add ~1.2 MiB to your
+binary.
 Alternatively, you can disable support for all languages and manually choose
 which ones get added:
 
@@ -39,6 +40,10 @@ which ones get added:
 [dependencies]
 hypher = { version = "0.1", default-features = false, features = ["english", "greek"] }
 ```
+
+`Lang::English` (code `en`) uses the American patterns. The British patterns
+are available separately as `Lang::EnglishGB` behind the `englishgb` feature.
+`Lang::from_iso` never selects them, so existing `en` output is unchanged.
 
 Each language added individually contributes:
 
@@ -56,6 +61,7 @@ Each language added individually contributes:
 | Danish     | 5.7 KiB |
 | Dutch      | 63 KiB  |
 | English    | 27 KiB  |
+| EnglishGB  | 43 KiB  |
 | Estonian   | 19 KiB  |
 | Finnish    | 636 B   |
 | French     | 6.9 KiB |

@@ -3,9 +3,8 @@
 
 /// A language you can hyphenate in.
 ///
-/// Lists for each language also the ISO 639-1 two
-/// letter language code and the ISO 15924 four letter
-/// script code.
+/// Lists each pattern's language code or regional tag,
+/// and the ISO 15924 four letter script code.
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 #[non_exhaustive]
 pub enum Lang {
@@ -45,6 +44,9 @@ pub enum Lang {
     /// Hyphenation for _English._ (Code: `en`, Script, `Latn`, Feature: `english`)
     #[cfg(feature = "english")]
     English,
+    /// Hyphenation for _EnglishGB._ (Code: `en-gb`, Script, `Latn`, Feature: `englishgb`)
+    #[cfg(feature = "englishgb")]
+    EnglishGB,
     /// Hyphenation for _Estonian._ (Code: `et`, Script, `Latn`, Feature: `estonian`)
     #[cfg(feature = "estonian")]
     Estonian,
@@ -293,6 +295,8 @@ impl Lang {
             Self::Dutch => (2, 2),
             #[cfg(feature = "english")]
             Self::English => (2, 3),
+            #[cfg(feature = "englishgb")]
+            Self::EnglishGB => (2, 3),
             #[cfg(feature = "estonian")]
             Self::Estonian => (2, 3),
             #[cfg(feature = "finnish")]
@@ -428,6 +432,8 @@ impl Lang {
             Self::Dutch => State::root(include_bytes!("../tries/nl.bin")),
             #[cfg(feature = "english")]
             Self::English => State::root(include_bytes!("../tries/en.bin")),
+            #[cfg(feature = "englishgb")]
+            Self::EnglishGB => State::root(include_bytes!("../tries/en-gb.bin")),
             #[cfg(feature = "estonian")]
             Self::Estonian => State::root(include_bytes!("../tries/et.bin")),
             #[cfg(feature = "finnish")]
