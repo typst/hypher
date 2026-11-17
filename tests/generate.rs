@@ -7,75 +7,85 @@ use std::path::Path;
 
 #[test]
 fn generate_code() {
-    let mut languages: [(&str, &str, &[&str], &str, &str, u8, u8); 48] = [
-        ("Afrikaans", "af", &[], "Latn", "hyph-af.tex", 1, 2),
-        ("Assamese", "as", &[], "Beng", "hyph-as.tex", 2, 2),
-        ("Belarusian", "be", &[], "Cyrl", "hyph-be.tex", 2, 2),
-        ("Bengali", "bn", &[], "Beng", "hyph-bn.tex", 2, 2),
-        ("Bulgarian", "bg", &[], "Cyrl", "hyph-bg.tex", 2, 2),
-        ("Catalan", "ca", &[], "Latn", "hyph-ca.tex", 2, 2),
-        ("Czech", "cs", &[], "Latn", "hyph-cs-sojka.tex", 2, 2),
-        ("Danish", "da", &[], "Latn", "hyph-da.tex", 2, 2),
-        ("Galician", "gl", &[], "Latn", "hyph-gl.tex", 2, 2),
-        ("German", "de", &[], "Latn", "hyph-de-1996.tex", 2, 2),
-        ("Greek", "el", &[], "Grek", "hyph-el-monoton.tex", 1, 1),
-        ("English", "en", &[], "Latn", "hyph-en-us.tex", 2, 3),
-        ("Spanish", "es", &[], "Latn", "hyph-es.tex", 2, 2),
-        ("Estonian", "et", &[], "Latn", "hyph-et.tex", 2, 3),
-        ("Finnish", "fi", &[], "Latn", "hyph-fi-x-school.tex", 2, 2),
-        ("French", "fr", &[], "Latn", "hyph-fr.tex", 2, 2),
-        ("Gujarati", "gu", &[], "Gujr", "hyph-gu.tex", 2, 2),
-        ("Hindi", "hi", &[], "Deva", "hyph-hi.tex", 2, 2),
-        ("Croatian", "hr", &[], "Latn", "hyph-hr.tex", 2, 2),
-        ("Hungarian", "hu", &[], "Latn", "hyph-hu.tex", 2, 2),
-        ("Icelandic", "is", &[], "Latn", "hyph-is.tex", 2, 2),
-        ("Italian", "it", &[], "Latn", "hyph-it.tex", 2, 2),
-        ("Kannada", "kn", &[], "Knda", "hyph-kn.tex", 2, 2),
-        ("Georgian", "ka", &[], "Geor", "hyph-ka.tex", 1, 2),
-        ("Kurmanji", "ku", &[], "Latn", "hyph-kmr.tex", 2, 2),
-        ("Latin", "la", &[], "Latn", "hyph-la.tex", 2, 2),
-        ("Lithuanian", "lt", &[], "Latn", "hyph-lt.tex", 2, 2),
-        ("Malayalam", "ml", &[], "Mlym", "hyph-ml.tex", 2, 2),
-        ("Marathi", "mr", &[], "Deva", "hyph-mr.tex", 2, 2),
-        ("Mongolian", "mn", &[], "Cyrl", "hyph-mn.tex", 2, 2),
-        ("Dutch", "nl", &[], "Latn", "hyph-nl.tex", 2, 2),
-        ("Norwegian", "no", &["nb", "nn"], "Latn", "hyph-no.tex", 2, 2),
-        ("Oriya", "or", &[], "Orya", "hyph-or.tex", 2, 2),
-        ("Panjabi", "pa", &[], "Guru", "hyph-pa.tex", 2, 2),
-        ("Polish", "pl", &[], "Latn", "hyph-pl.tex", 2, 2),
-        ("Portuguese", "pt", &[], "Latn", "hyph-pt.tex", 2, 3),
-        ("Russian", "ru", &[], "Cyrl", "hyph-ru.tex", 2, 2),
-        ("Sanskrit", "sa", &[], "Deva", "hyph-sa.tex", 2, 2),
-        ("Serbian", "sr", &[], "Cyrl", "hyph-sh-cyrl.tex", 2, 2),
-        ("Slovak", "sk", &[], "Latn", "hyph-sk.tex", 2, 3),
-        ("Slovenian", "sl", &[], "Latn", "hyph-sl.tex", 2, 2),
-        ("Albanian", "sq", &[], "Latn", "hyph-sq.tex", 2, 2),
-        ("Swedish", "sv", &[], "Latn", "hyph-sv.tex", 2, 2),
-        ("Tamil", "ta", &[], "Taml", "hyph-ta.tex", 2, 2),
-        ("Telugu", "te", &[], "Telu", "hyph-te.tex", 2, 2),
-        ("Turkmen", "tk", &[], "Latn", "hyph-tk.tex", 2, 2),
-        ("Turkish", "tr", &[], "Latn", "hyph-tr.tex", 2, 2),
-        ("Ukrainian", "uk", &[], "Cyrl", "hyph-uk.tex", 2, 2),
+    let languages: &mut [(&str, &[&str], &str, &str, u8, u8)] = &mut [
+        ("Afrikaans", &["af", "afr"], "Latn", "hyph-af.tex", 1, 2),
+        ("Assamese", &["as", "asm"], "Beng", "hyph-as.tex", 2, 2),
+        ("Belarusian", &["be", "bel"], "Cyrl", "hyph-be.tex", 2, 2),
+        ("Bengali", &["bn", "ben"], "Beng", "hyph-bn.tex", 2, 2),
+        ("Bulgarian", &["bg", "bul"], "Cyrl", "hyph-bg.tex", 2, 2),
+        ("Catalan", &["ca", "cat"], "Latn", "hyph-ca.tex", 2, 2),
+        ("Czech", &["cs", "ces"], "Latn", "hyph-cs-sojka.tex", 2, 2),
+        ("Danish", &["da", "dan"], "Latn", "hyph-da.tex", 2, 2),
+        ("Galician", &["gl", "glg"], "Latn", "hyph-gl.tex", 2, 2),
+        ("German", &["de", "deu"], "Latn", "hyph-de-1996.tex", 2, 2),
+        ("Greek", &["el", "ell"], "Grek", "hyph-el-monoton.tex", 1, 1),
+        ("English", &["en", "eng"], "Latn", "hyph-en-us.tex", 2, 3),
+        ("Spanish", &["es", "spa"], "Latn", "hyph-es.tex", 2, 2),
+        ("Estonian", &["et", "est", "ekk"], "Latn", "hyph-et.tex", 2, 3),
+        ("Finnish", &["fi", "fin"], "Latn", "hyph-fi-x-school.tex", 2, 2),
+        ("Friulian", &["fur"], "Latn", "hyph-fur.tex", 2, 2),
+        ("French", &["fr", "fra"], "Latn", "hyph-fr.tex", 2, 2),
+        ("Gujarati", &["gu", "guj"], "Gujr", "hyph-gu.tex", 2, 2),
+        ("Hindi", &["hi", "hin"], "Deva", "hyph-hi.tex", 2, 2),
+        ("Croatian", &["hr", "hrv"], "Latn", "hyph-hr.tex", 2, 2),
+        ("Hungarian", &["hu", "hun"], "Latn", "hyph-hu.tex", 2, 2),
+        ("Icelandic", &["is", "isl"], "Latn", "hyph-is.tex", 2, 2),
+        ("Italian", &["it", "ita"], "Latn", "hyph-it.tex", 2, 2),
+        ("Kannada", &["kn", "kan"], "Knda", "hyph-kn.tex", 2, 2),
+        ("Georgian", &["ka", "kat"], "Geor", "hyph-ka.tex", 1, 2),
+        ("Kurmanji", &["ku", "kur", "kmr"], "Latn", "hyph-kmr.tex", 2, 2),
+        ("Latin", &["la", "lat"], "Latn", "hyph-la.tex", 2, 2),
+        ("Ligurian", &["lij"], "Latn", "hyph-lij.tex", 2, 2),
+        ("Lithuanian", &["lt", "lit"], "Latn", "hyph-lt.tex", 2, 2),
+        ("Malayalam", &["ml", "mal"], "Mlym", "hyph-ml.tex", 2, 2),
+        ("Marathi", &["mr", "mar"], "Deva", "hyph-mr.tex", 2, 2),
+        ("Mongolian", &["mn", "mon", "khk"], "Cyrl", "hyph-mn.tex", 2, 2),
+        ("Dutch", &["nl", "nld"], "Latn", "hyph-nl.tex", 2, 2),
+        (
+            "Norwegian",
+            &["no", "nor", "nb", "nob", "nn", "nno"],
+            "Latn",
+            "hyph-no.tex",
+            2,
+            2,
+        ),
+        ("Oriya", &["or", "ori", "ory"], "Orya", "hyph-or.tex", 2, 2),
+        ("Panjabi", &["pa", "pan"], "Guru", "hyph-pa.tex", 2, 2),
+        ("Piedmontese", &["pms"], "Latn", "hyph-pms.tex", 2, 2),
+        ("Polish", &["pl", "pol"], "Latn", "hyph-pl.tex", 2, 2),
+        ("Portuguese", &["pt", "por"], "Latn", "hyph-pt.tex", 2, 3),
+        ("Russian", &["ru", "rus"], "Cyrl", "hyph-ru.tex", 2, 2),
+        ("Sanskrit", &["sa", "san", "cls"], "Deva", "hyph-sa.tex", 2, 2),
+        ("Serbian", &["sr", "srp"], "Cyrl", "hyph-sh-cyrl.tex", 2, 2),
+        ("Slovak", &["sk", "slk"], "Latn", "hyph-sk.tex", 2, 3),
+        ("Slovenian", &["sl", "slv"], "Latn", "hyph-sl.tex", 2, 2),
+        ("Albanian", &["sq", "sqi", "als"], "Latn", "hyph-sq.tex", 2, 2),
+        ("Swedish", &["sv", "swe"], "Latn", "hyph-sv.tex", 2, 2),
+        ("Tamil", &["ta", "tam"], "Taml", "hyph-ta.tex", 2, 2),
+        ("Telugu", &["te", "tel"], "Telu", "hyph-te.tex", 2, 2),
+        ("Turkmen", &["tk", "tuk"], "Latn", "hyph-tk.tex", 2, 2),
+        ("Turkish", &["tr", "tur"], "Latn", "hyph-tr.tex", 2, 2),
+        ("Ukrainian", &["uk", "ukr"], "Cyrl", "hyph-uk.tex", 2, 2),
     ];
 
     languages.sort();
 
     // Build the tries.
     let mut fresh = true;
-    for (_, iso, _, _, filename, ..) in languages {
+    for &(_, codes, _, filename, ..) in languages.iter() {
         let path = Path::new("patterns").join(filename);
         let tex = fs::read_to_string(&path).unwrap();
         let mut builder = TrieBuilder::new();
         parse(&tex, |pat| builder.insert(pat));
         builder.compress();
         let trie = builder.encode();
-        let path = format!("tries/{iso}.bin");
+        let path = format!("tries/{}.bin", codes[0]);
         fresh &= write_check(&path, trie);
     }
 
     // Build the lang.rs file.
     let mut text = String::new();
-    write_lang(&mut text, &languages).unwrap();
+    write_lang(&mut text, languages).unwrap();
     fresh &= write_check("src/lang.rs", text.into_bytes());
 
     if !fresh {
@@ -91,7 +101,7 @@ fn write_check(path: &str, data: Vec<u8>) -> bool {
 
 fn write_lang(
     w: &mut String,
-    languages: &[(&str, &str, &[&str], &str, &str, u8, u8)],
+    languages: &[(&str, &[&str], &str, &str, u8, u8)],
 ) -> fmt::Result {
     writeln!(w, "// This file is generated by tests/generate.rs")?;
     writeln!(w, "// Do not edit by hand!")?;
@@ -99,20 +109,15 @@ fn write_lang(
 
     writeln!(w, "/// A language you can hyphenate in.")?;
     writeln!(w, "///")?;
-    writeln!(w, "/// Lists for each language also the ISO 639-1 two")?;
-    writeln!(w, "/// letter language code and the ISO 15924 four letter")?;
-    writeln!(w, "/// script code.")?;
+    writeln!(w, "/// Lists each language's available ISO 639-1/3 codes")?;
+    writeln!(w, "/// and ISO 15924 script code.")?;
     writeln!(w, "#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]")?;
     writeln!(w, "#[non_exhaustive]")?;
     writeln!(w, "pub enum Lang {{")?;
 
-    for &(name, iso, isos, script, ..) in languages {
+    for &(name, codes, script, ..) in languages {
         let feature = name.to_lowercase();
-        write!(w, "    /// Hyphenation for _{name}._ (Code: `{iso}`, ")?;
-        for code in isos {
-            write!(w, "Alias: `{code}`, ")?;
-        }
-        writeln!(w, "Script, `{script}`, Feature: `{feature}`)")?;
+        writeln!(w, "    /// Hyphenation for _{name}._ (Codes: `{}`; Script: `{script}`; Feature: `{feature}`)", codes.join("`, `"))?;
         write!(w, "    ")?;
         write_cfg(w, &feature)?;
         writeln!(w, "    {name},")?;
@@ -123,20 +128,34 @@ fn write_lang(
 
     writeln!(w, "impl Lang {{")?;
 
-    // Implementation of `from_iso`.
+    // Implementation of the deprecated `from_iso` interface.
     writeln!(w, "    /// Select a language using its ISO 639-1 code.")?;
+    writeln!(w, "    ///")?;
+    writeln!(
+        w,
+        "    /// Use [`Self::from_code`] for two- or three-letter language codes."
+    )?;
+    writeln!(
+        w,
+        r#"    #[deprecated(since = "0.1.9", note = "Use Lang::from_code instead")]"#
+    )?;
     writeln!(w, "    pub fn from_iso(code: [u8; 2]) -> Option<Self> {{")?;
-    writeln!(w, "        match &code {{")?;
-    for &(name, iso, isos, ..) in languages {
+    writeln!(w, "        Self::from_code(core::str::from_utf8(&code).ok()?)")?;
+    writeln!(w, "    }}")?;
+    writeln!(w)?;
+
+    // Implementation of `from_code`.
+    writeln!(
+        w,
+        "    /// Select a language using its lowercase ISO 639-1 or ISO 639-3 code."
+    )?;
+    writeln!(w, "    pub fn from_code(code: &str) -> Option<Self> {{")?;
+    writeln!(w, "        match code {{")?;
+    for &(name, codes, ..) in languages {
         let feature = name.to_lowercase();
         write!(w, "            ")?;
         write_cfg(w, &feature)?;
-        writeln!(w, r#"            b"{iso}" => Some(Self::{name}),"#)?;
-        for code in isos {
-            write!(w, "            ")?;
-            write_cfg(w, &feature)?;
-            writeln!(w, r#"            b"{code}" => Some(Self::{name}),"#)?;
-        }
+        writeln!(w, "            \"{}\" => Some(Self::{name}),", codes.join("\" | \""))?;
     }
     writeln!(w, "            _ => None,")?;
     writeln!(w, "        }}")?;
@@ -170,7 +189,7 @@ fn write_lang(
     )?;
     writeln!(w, "    pub fn hyphenation_character(self) -> Option<char> {{")?;
     writeln!(w, "        match self {{")?;
-    for &(name, _, _, script, ..) in languages {
+    for &(name, _, script, ..) in languages {
         if !is_indic_script(script) {
             continue;
         }
@@ -187,12 +206,12 @@ fn write_lang(
     // Implementation of `root`.
     writeln!(w, "    fn root(self) -> State<'static> {{")?;
     writeln!(w, "        match self {{")?;
-    for (name, iso, ..) in languages {
+    for (name, codes, ..) in languages {
         let feature = name.to_lowercase();
         write!(w, "            ")?;
         write_cfg(w, &feature)?;
         write!(w, "            Self::{name} => State::root(")?;
-        writeln!(w, "include_bytes!(\"../tries/{iso}.bin\")),")?;
+        writeln!(w, "include_bytes!(\"../tries/{}.bin\")),", codes[0])?;
     }
     writeln!(w, "        }}")?;
     writeln!(w, "    }}")?;

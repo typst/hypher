@@ -30,7 +30,7 @@ assert_eq!(syllables.join("-"), "ex-ten-sive");
 ```
 
 ## Languages
-By default, this crate supports hyphenating 48 languages. Embedding
+By default, this crate supports hyphenating 51 languages. Embedding
 automata for all these languages will add ~1.1 MiB to your binary.
 Alternatively, you can disable support for all languages and manually choose
 which ones get added:
@@ -59,6 +59,7 @@ Each language added individually contributes:
 | Estonian   | 19 KiB  |
 | Finnish    | 636 B   |
 | French     | 6.9 KiB |
+| Friulian   | 1.9 KiB |
 | Galician   | 7.3 KiB |
 | Georgian   | 11 KiB  |
 | German     | 201 KiB |
@@ -71,6 +72,7 @@ Each language added individually contributes:
 | Kannada    | 208 B   |
 | Kurmanji   | 1.4 KiB |
 | Latin      | 1003 B  |
+| Ligurian   | 1.2 KiB |
 | Lithuanian | 6.5 KiB |
 | Malayalam  | 244 B   |
 | Marathi    | 202 B   |
@@ -78,6 +80,7 @@ Each language added individually contributes:
 | Norwegian  | 153 KiB |
 | Oriya      | 188 B   |
 | Panjabi    | 176 B   |
+| Piedmontese | 1.6 KiB |
 | Polish     | 16 KiB  |
 | Portuguese | 1.0 KiB |
 | Russian    | 33 KiB  |
