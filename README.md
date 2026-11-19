@@ -109,7 +109,7 @@ The code of this crate is dual-licensed under the MIT and Apache 2.0 licenses.
 The files in `patterns/` are subject to the individual licenses stated therein.
 The patterns are processed at build time and then embedded (i.e. statically
 linked) into your binary. However, _hypher_ includes only patterns that are
-available under permissive licenses. Patterns licenses include the LPPL, MPL,
-MIT, BSD-3.
+available under permissive licenses. For collated license information, check the
+`NOTICE` file.
 
 [`hyphenation`]: https://github.com/tapeinosyne/hyphenation

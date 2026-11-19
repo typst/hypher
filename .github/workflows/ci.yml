@@ -6,8 +6,8 @@ jobs:
     name: Tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: dtolnay/rust-toolchain@1.88
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: dtolnay/rust-toolchain@5445741acf05630efa19e221cc588ebe0842b13d # v1.88
       - run: cargo build
       - run: cargo build --no-default-features
       - run: cargo test --lib --no-default-features --features english
@@ -18,8 +18,8 @@ jobs:
     name: Check clippy, formatting, and documentation
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@1.88.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: dtolnay/rust-toolchain@5445741acf05630efa19e221cc588ebe0842b13d # v1.88.0
         with:
           components: clippy, rustfmt
       - run: cargo clippy --workspace --all-targets --all-features
@@ -30,6 +30,16 @@ jobs:
     name: Check minimum Rust version
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@1.64.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: dtolnay/rust-toolchain@ccb109445a0340d2f371f6f47db07e5012bf5283 # v1.64.0
       - run: cargo check --workspace
+
+  licenses:
+    name: Check licenses
+    runs-on: ubuntu-slim
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: dtolnay/rust-toolchain@5445741acf05630efa19e221cc588ebe0842b13d # v1.88.0
+      - uses: typst/notices@0e44c240da489017e8766ed80eab2d03b2833a0c # v0.1.2
+        with:
+          args: check --deps
