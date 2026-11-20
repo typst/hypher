@@ -7,7 +7,7 @@ use std::path::Path;
 
 #[test]
 fn generate_code() {
-    let mut languages: [(&str, &str, &[&str], &str, &str, u8, u8); 48] = [
+    let mut languages: [(&str, &str, &[&str], &str, &str, u8, u8); 49] = [
         ("Afrikaans", "af", &[], "Latn", "hyph-af.tex", 1, 2),
         ("Assamese", "as", &[], "Beng", "hyph-as.tex", 2, 2),
         ("Belarusian", "be", &[], "Cyrl", "hyph-be.tex", 2, 2),
@@ -20,6 +20,7 @@ fn generate_code() {
         ("German", "de", &[], "Latn", "hyph-de-1996.tex", 2, 2),
         ("Greek", "el", &[], "Grek", "hyph-el-monoton.tex", 1, 1),
         ("English", "en", &[], "Latn", "hyph-en-us.tex", 2, 3),
+        ("EnglishGB", "en-gb", &[], "Latn", "hyph-en-gb.tex", 2, 3),
         ("Spanish", "es", &[], "Latn", "hyph-es.tex", 2, 2),
         ("Estonian", "et", &[], "Latn", "hyph-et.tex", 2, 3),
         ("Finnish", "fi", &[], "Latn", "hyph-fi-x-school.tex", 2, 2),
@@ -99,9 +100,8 @@ fn write_lang(
 
     writeln!(w, "/// A language you can hyphenate in.")?;
     writeln!(w, "///")?;
-    writeln!(w, "/// Lists for each language also the ISO 639-1 two")?;
-    writeln!(w, "/// letter language code and the ISO 15924 four letter")?;
-    writeln!(w, "/// script code.")?;
+    writeln!(w, "/// Lists each pattern's language code or regional tag,")?;
+    writeln!(w, "/// and the ISO 15924 four letter script code.")?;
     writeln!(w, "#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]")?;
     writeln!(w, "#[non_exhaustive]")?;
     writeln!(w, "pub enum Lang {{")?;
@@ -128,6 +128,10 @@ fn write_lang(
     writeln!(w, "    pub fn from_iso(code: [u8; 2]) -> Option<Self> {{")?;
     writeln!(w, "        match &code {{")?;
     for &(name, iso, isos, ..) in languages {
+        // Regional keys like `en-gb` are only selectable explicitly.
+        if iso.len() != 2 {
+            continue;
+        }
         let feature = name.to_lowercase();
         write!(w, "            ")?;
         write_cfg(w, &feature)?;
