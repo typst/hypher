@@ -3,262 +3,280 @@
 
 /// A language you can hyphenate in.
 ///
-/// Lists for each language also the ISO 639-1 two
-/// letter language code and the ISO 15924 four letter
-/// script code.
+/// Lists each language's available ISO 639-1/3 codes
+/// and ISO 15924 script code.
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 #[non_exhaustive]
 pub enum Lang {
-    /// Hyphenation for _Afrikaans._ (Code: `af`, Script, `Latn`, Feature: `afrikaans`)
+    /// Hyphenation for _Afrikaans._ (Codes: `af`, `afr`; Script: `Latn`; Feature: `afrikaans`)
     #[cfg(feature = "afrikaans")]
     Afrikaans,
-    /// Hyphenation for _Albanian._ (Code: `sq`, Script, `Latn`, Feature: `albanian`)
+    /// Hyphenation for _Albanian._ (Codes: `sq`, `sqi`, `als`; Script: `Latn`; Feature: `albanian`)
     #[cfg(feature = "albanian")]
     Albanian,
-    /// Hyphenation for _Assamese._ (Code: `as`, Script, `Beng`, Feature: `assamese`)
+    /// Hyphenation for _Assamese._ (Codes: `as`, `asm`; Script: `Beng`; Feature: `assamese`)
     #[cfg(feature = "assamese")]
     Assamese,
-    /// Hyphenation for _Belarusian._ (Code: `be`, Script, `Cyrl`, Feature: `belarusian`)
+    /// Hyphenation for _Belarusian._ (Codes: `be`, `bel`; Script: `Cyrl`; Feature: `belarusian`)
     #[cfg(feature = "belarusian")]
     Belarusian,
-    /// Hyphenation for _Bengali._ (Code: `bn`, Script, `Beng`, Feature: `bengali`)
+    /// Hyphenation for _Bengali._ (Codes: `bn`, `ben`; Script: `Beng`; Feature: `bengali`)
     #[cfg(feature = "bengali")]
     Bengali,
-    /// Hyphenation for _Bulgarian._ (Code: `bg`, Script, `Cyrl`, Feature: `bulgarian`)
+    /// Hyphenation for _Bulgarian._ (Codes: `bg`, `bul`; Script: `Cyrl`; Feature: `bulgarian`)
     #[cfg(feature = "bulgarian")]
     Bulgarian,
-    /// Hyphenation for _Catalan._ (Code: `ca`, Script, `Latn`, Feature: `catalan`)
+    /// Hyphenation for _Catalan._ (Codes: `ca`, `cat`; Script: `Latn`; Feature: `catalan`)
     #[cfg(feature = "catalan")]
     Catalan,
-    /// Hyphenation for _Croatian._ (Code: `hr`, Script, `Latn`, Feature: `croatian`)
+    /// Hyphenation for _Croatian._ (Codes: `hr`, `hrv`; Script: `Latn`; Feature: `croatian`)
     #[cfg(feature = "croatian")]
     Croatian,
-    /// Hyphenation for _Czech._ (Code: `cs`, Script, `Latn`, Feature: `czech`)
+    /// Hyphenation for _Czech._ (Codes: `cs`, `ces`; Script: `Latn`; Feature: `czech`)
     #[cfg(feature = "czech")]
     Czech,
-    /// Hyphenation for _Danish._ (Code: `da`, Script, `Latn`, Feature: `danish`)
+    /// Hyphenation for _Danish._ (Codes: `da`, `dan`; Script: `Latn`; Feature: `danish`)
     #[cfg(feature = "danish")]
     Danish,
-    /// Hyphenation for _Dutch._ (Code: `nl`, Script, `Latn`, Feature: `dutch`)
+    /// Hyphenation for _Dutch._ (Codes: `nl`, `nld`; Script: `Latn`; Feature: `dutch`)
     #[cfg(feature = "dutch")]
     Dutch,
-    /// Hyphenation for _English._ (Code: `en`, Script, `Latn`, Feature: `english`)
+    /// Hyphenation for _English._ (Codes: `en`, `eng`; Script: `Latn`; Feature: `english`)
     #[cfg(feature = "english")]
     English,
-    /// Hyphenation for _Estonian._ (Code: `et`, Script, `Latn`, Feature: `estonian`)
+    /// Hyphenation for _Estonian._ (Codes: `et`, `est`, `ekk`; Script: `Latn`; Feature: `estonian`)
     #[cfg(feature = "estonian")]
     Estonian,
-    /// Hyphenation for _Finnish._ (Code: `fi`, Script, `Latn`, Feature: `finnish`)
+    /// Hyphenation for _Finnish._ (Codes: `fi`, `fin`; Script: `Latn`; Feature: `finnish`)
     #[cfg(feature = "finnish")]
     Finnish,
-    /// Hyphenation for _French._ (Code: `fr`, Script, `Latn`, Feature: `french`)
+    /// Hyphenation for _French._ (Codes: `fr`, `fra`; Script: `Latn`; Feature: `french`)
     #[cfg(feature = "french")]
     French,
-    /// Hyphenation for _Galician._ (Code: `gl`, Script, `Latn`, Feature: `galician`)
+    /// Hyphenation for _Friulian._ (Codes: `fur`; Script: `Latn`; Feature: `friulian`)
+    #[cfg(feature = "friulian")]
+    Friulian,
+    /// Hyphenation for _Galician._ (Codes: `gl`, `glg`; Script: `Latn`; Feature: `galician`)
     #[cfg(feature = "galician")]
     Galician,
-    /// Hyphenation for _Georgian._ (Code: `ka`, Script, `Geor`, Feature: `georgian`)
+    /// Hyphenation for _Georgian._ (Codes: `ka`, `kat`; Script: `Geor`; Feature: `georgian`)
     #[cfg(feature = "georgian")]
     Georgian,
-    /// Hyphenation for _German._ (Code: `de`, Script, `Latn`, Feature: `german`)
+    /// Hyphenation for _German._ (Codes: `de`, `deu`; Script: `Latn`; Feature: `german`)
     #[cfg(feature = "german")]
     German,
-    /// Hyphenation for _Greek._ (Code: `el`, Script, `Grek`, Feature: `greek`)
+    /// Hyphenation for _Greek._ (Codes: `el`, `ell`; Script: `Grek`; Feature: `greek`)
     #[cfg(feature = "greek")]
     Greek,
-    /// Hyphenation for _Gujarati._ (Code: `gu`, Script, `Gujr`, Feature: `gujarati`)
+    /// Hyphenation for _Gujarati._ (Codes: `gu`, `guj`; Script: `Gujr`; Feature: `gujarati`)
     #[cfg(feature = "gujarati")]
     Gujarati,
-    /// Hyphenation for _Hindi._ (Code: `hi`, Script, `Deva`, Feature: `hindi`)
+    /// Hyphenation for _Hindi._ (Codes: `hi`, `hin`; Script: `Deva`; Feature: `hindi`)
     #[cfg(feature = "hindi")]
     Hindi,
-    /// Hyphenation for _Hungarian._ (Code: `hu`, Script, `Latn`, Feature: `hungarian`)
+    /// Hyphenation for _Hungarian._ (Codes: `hu`, `hun`; Script: `Latn`; Feature: `hungarian`)
     #[cfg(feature = "hungarian")]
     Hungarian,
-    /// Hyphenation for _Icelandic._ (Code: `is`, Script, `Latn`, Feature: `icelandic`)
+    /// Hyphenation for _Icelandic._ (Codes: `is`, `isl`; Script: `Latn`; Feature: `icelandic`)
     #[cfg(feature = "icelandic")]
     Icelandic,
-    /// Hyphenation for _Italian._ (Code: `it`, Script, `Latn`, Feature: `italian`)
+    /// Hyphenation for _Italian._ (Codes: `it`, `ita`; Script: `Latn`; Feature: `italian`)
     #[cfg(feature = "italian")]
     Italian,
-    /// Hyphenation for _Kannada._ (Code: `kn`, Script, `Knda`, Feature: `kannada`)
+    /// Hyphenation for _Kannada._ (Codes: `kn`, `kan`; Script: `Knda`; Feature: `kannada`)
     #[cfg(feature = "kannada")]
     Kannada,
-    /// Hyphenation for _Kurmanji._ (Code: `ku`, Script, `Latn`, Feature: `kurmanji`)
+    /// Hyphenation for _Kurmanji._ (Codes: `ku`, `kur`, `kmr`; Script: `Latn`; Feature: `kurmanji`)
     #[cfg(feature = "kurmanji")]
     Kurmanji,
-    /// Hyphenation for _Latin._ (Code: `la`, Script, `Latn`, Feature: `latin`)
+    /// Hyphenation for _Latin._ (Codes: `la`, `lat`; Script: `Latn`; Feature: `latin`)
     #[cfg(feature = "latin")]
     Latin,
-    /// Hyphenation for _Lithuanian._ (Code: `lt`, Script, `Latn`, Feature: `lithuanian`)
+    /// Hyphenation for _Ligurian._ (Codes: `lij`; Script: `Latn`; Feature: `ligurian`)
+    #[cfg(feature = "ligurian")]
+    Ligurian,
+    /// Hyphenation for _Lithuanian._ (Codes: `lt`, `lit`; Script: `Latn`; Feature: `lithuanian`)
     #[cfg(feature = "lithuanian")]
     Lithuanian,
-    /// Hyphenation for _Malayalam._ (Code: `ml`, Script, `Mlym`, Feature: `malayalam`)
+    /// Hyphenation for _Malayalam._ (Codes: `ml`, `mal`; Script: `Mlym`; Feature: `malayalam`)
     #[cfg(feature = "malayalam")]
     Malayalam,
-    /// Hyphenation for _Marathi._ (Code: `mr`, Script, `Deva`, Feature: `marathi`)
+    /// Hyphenation for _Marathi._ (Codes: `mr`, `mar`; Script: `Deva`; Feature: `marathi`)
     #[cfg(feature = "marathi")]
     Marathi,
-    /// Hyphenation for _Mongolian._ (Code: `mn`, Script, `Cyrl`, Feature: `mongolian`)
+    /// Hyphenation for _Mongolian._ (Codes: `mn`, `mon`, `khk`; Script: `Cyrl`; Feature: `mongolian`)
     #[cfg(feature = "mongolian")]
     Mongolian,
-    /// Hyphenation for _Norwegian._ (Code: `no`, Alias: `nb`, Alias: `nn`, Script, `Latn`, Feature: `norwegian`)
+    /// Hyphenation for _Norwegian._ (Codes: `no`, `nor`, `nb`, `nob`, `nn`, `nno`; Script: `Latn`; Feature: `norwegian`)
     #[cfg(feature = "norwegian")]
     Norwegian,
-    /// Hyphenation for _Oriya._ (Code: `or`, Script, `Orya`, Feature: `oriya`)
+    /// Hyphenation for _Oriya._ (Codes: `or`, `ori`, `ory`; Script: `Orya`; Feature: `oriya`)
     #[cfg(feature = "oriya")]
     Oriya,
-    /// Hyphenation for _Panjabi._ (Code: `pa`, Script, `Guru`, Feature: `panjabi`)
+    /// Hyphenation for _Panjabi._ (Codes: `pa`, `pan`; Script: `Guru`; Feature: `panjabi`)
     #[cfg(feature = "panjabi")]
     Panjabi,
-    /// Hyphenation for _Polish._ (Code: `pl`, Script, `Latn`, Feature: `polish`)
+    /// Hyphenation for _Piedmontese._ (Codes: `pms`; Script: `Latn`; Feature: `piedmontese`)
+    #[cfg(feature = "piedmontese")]
+    Piedmontese,
+    /// Hyphenation for _Polish._ (Codes: `pl`, `pol`; Script: `Latn`; Feature: `polish`)
     #[cfg(feature = "polish")]
     Polish,
-    /// Hyphenation for _Portuguese._ (Code: `pt`, Script, `Latn`, Feature: `portuguese`)
+    /// Hyphenation for _Portuguese._ (Codes: `pt`, `por`; Script: `Latn`; Feature: `portuguese`)
     #[cfg(feature = "portuguese")]
     Portuguese,
-    /// Hyphenation for _Russian._ (Code: `ru`, Script, `Cyrl`, Feature: `russian`)
+    /// Hyphenation for _Russian._ (Codes: `ru`, `rus`; Script: `Cyrl`; Feature: `russian`)
     #[cfg(feature = "russian")]
     Russian,
-    /// Hyphenation for _Sanskrit._ (Code: `sa`, Script, `Deva`, Feature: `sanskrit`)
+    /// Hyphenation for _Sanskrit._ (Codes: `sa`, `san`, `cls`; Script: `Deva`; Feature: `sanskrit`)
     #[cfg(feature = "sanskrit")]
     Sanskrit,
-    /// Hyphenation for _Serbian._ (Code: `sr`, Script, `Cyrl`, Feature: `serbian`)
+    /// Hyphenation for _Serbian._ (Codes: `sr`, `srp`; Script: `Cyrl`; Feature: `serbian`)
     #[cfg(feature = "serbian")]
     Serbian,
-    /// Hyphenation for _Slovak._ (Code: `sk`, Script, `Latn`, Feature: `slovak`)
+    /// Hyphenation for _Slovak._ (Codes: `sk`, `slk`; Script: `Latn`; Feature: `slovak`)
     #[cfg(feature = "slovak")]
     Slovak,
-    /// Hyphenation for _Slovenian._ (Code: `sl`, Script, `Latn`, Feature: `slovenian`)
+    /// Hyphenation for _Slovenian._ (Codes: `sl`, `slv`; Script: `Latn`; Feature: `slovenian`)
     #[cfg(feature = "slovenian")]
     Slovenian,
-    /// Hyphenation for _Spanish._ (Code: `es`, Script, `Latn`, Feature: `spanish`)
+    /// Hyphenation for _Spanish._ (Codes: `es`, `spa`; Script: `Latn`; Feature: `spanish`)
     #[cfg(feature = "spanish")]
     Spanish,
-    /// Hyphenation for _Swedish._ (Code: `sv`, Script, `Latn`, Feature: `swedish`)
+    /// Hyphenation for _Swedish._ (Codes: `sv`, `swe`; Script: `Latn`; Feature: `swedish`)
     #[cfg(feature = "swedish")]
     Swedish,
-    /// Hyphenation for _Tamil._ (Code: `ta`, Script, `Taml`, Feature: `tamil`)
+    /// Hyphenation for _Tamil._ (Codes: `ta`, `tam`; Script: `Taml`; Feature: `tamil`)
     #[cfg(feature = "tamil")]
     Tamil,
-    /// Hyphenation for _Telugu._ (Code: `te`, Script, `Telu`, Feature: `telugu`)
+    /// Hyphenation for _Telugu._ (Codes: `te`, `tel`; Script: `Telu`; Feature: `telugu`)
     #[cfg(feature = "telugu")]
     Telugu,
-    /// Hyphenation for _Turkish._ (Code: `tr`, Script, `Latn`, Feature: `turkish`)
+    /// Hyphenation for _Turkish._ (Codes: `tr`, `tur`; Script: `Latn`; Feature: `turkish`)
     #[cfg(feature = "turkish")]
     Turkish,
-    /// Hyphenation for _Turkmen._ (Code: `tk`, Script, `Latn`, Feature: `turkmen`)
+    /// Hyphenation for _Turkmen._ (Codes: `tk`, `tuk`; Script: `Latn`; Feature: `turkmen`)
     #[cfg(feature = "turkmen")]
     Turkmen,
-    /// Hyphenation for _Ukrainian._ (Code: `uk`, Script, `Cyrl`, Feature: `ukrainian`)
+    /// Hyphenation for _Ukrainian._ (Codes: `uk`, `ukr`; Script: `Cyrl`; Feature: `ukrainian`)
     #[cfg(feature = "ukrainian")]
     Ukrainian,
 }
 
 impl Lang {
     /// Select a language using its ISO 639-1 code.
+    ///
+    /// Use [`Self::from_code`] for two- or three-letter language codes.
+    #[deprecated(since = "0.1.9", note = "Use Lang::from_code instead")]
     pub fn from_iso(code: [u8; 2]) -> Option<Self> {
-        match &code {
+        Self::from_code(core::str::from_utf8(&code).ok()?)
+    }
+
+    /// Select a language using its lowercase ISO 639-1 or ISO 639-3 code.
+    pub fn from_code(code: &str) -> Option<Self> {
+        match code {
             #[cfg(feature = "afrikaans")]
-            b"af" => Some(Self::Afrikaans),
+            "af" | "afr" => Some(Self::Afrikaans),
             #[cfg(feature = "albanian")]
-            b"sq" => Some(Self::Albanian),
+            "sq" | "sqi" | "als" => Some(Self::Albanian),
             #[cfg(feature = "assamese")]
-            b"as" => Some(Self::Assamese),
+            "as" | "asm" => Some(Self::Assamese),
             #[cfg(feature = "belarusian")]
-            b"be" => Some(Self::Belarusian),
+            "be" | "bel" => Some(Self::Belarusian),
             #[cfg(feature = "bengali")]
-            b"bn" => Some(Self::Bengali),
+            "bn" | "ben" => Some(Self::Bengali),
             #[cfg(feature = "bulgarian")]
-            b"bg" => Some(Self::Bulgarian),
+            "bg" | "bul" => Some(Self::Bulgarian),
             #[cfg(feature = "catalan")]
-            b"ca" => Some(Self::Catalan),
+            "ca" | "cat" => Some(Self::Catalan),
             #[cfg(feature = "croatian")]
-            b"hr" => Some(Self::Croatian),
+            "hr" | "hrv" => Some(Self::Croatian),
             #[cfg(feature = "czech")]
-            b"cs" => Some(Self::Czech),
+            "cs" | "ces" => Some(Self::Czech),
             #[cfg(feature = "danish")]
-            b"da" => Some(Self::Danish),
+            "da" | "dan" => Some(Self::Danish),
             #[cfg(feature = "dutch")]
-            b"nl" => Some(Self::Dutch),
+            "nl" | "nld" => Some(Self::Dutch),
             #[cfg(feature = "english")]
-            b"en" => Some(Self::English),
+            "en" | "eng" => Some(Self::English),
             #[cfg(feature = "estonian")]
-            b"et" => Some(Self::Estonian),
+            "et" | "est" | "ekk" => Some(Self::Estonian),
             #[cfg(feature = "finnish")]
-            b"fi" => Some(Self::Finnish),
+            "fi" | "fin" => Some(Self::Finnish),
             #[cfg(feature = "french")]
-            b"fr" => Some(Self::French),
+            "fr" | "fra" => Some(Self::French),
+            #[cfg(feature = "friulian")]
+            "fur" => Some(Self::Friulian),
             #[cfg(feature = "galician")]
-            b"gl" => Some(Self::Galician),
+            "gl" | "glg" => Some(Self::Galician),
             #[cfg(feature = "georgian")]
-            b"ka" => Some(Self::Georgian),
+            "ka" | "kat" => Some(Self::Georgian),
             #[cfg(feature = "german")]
-            b"de" => Some(Self::German),
+            "de" | "deu" => Some(Self::German),
             #[cfg(feature = "greek")]
-            b"el" => Some(Self::Greek),
+            "el" | "ell" => Some(Self::Greek),
             #[cfg(feature = "gujarati")]
-            b"gu" => Some(Self::Gujarati),
+            "gu" | "guj" => Some(Self::Gujarati),
             #[cfg(feature = "hindi")]
-            b"hi" => Some(Self::Hindi),
+            "hi" | "hin" => Some(Self::Hindi),
             #[cfg(feature = "hungarian")]
-            b"hu" => Some(Self::Hungarian),
+            "hu" | "hun" => Some(Self::Hungarian),
             #[cfg(feature = "icelandic")]
-            b"is" => Some(Self::Icelandic),
+            "is" | "isl" => Some(Self::Icelandic),
             #[cfg(feature = "italian")]
-            b"it" => Some(Self::Italian),
+            "it" | "ita" => Some(Self::Italian),
             #[cfg(feature = "kannada")]
-            b"kn" => Some(Self::Kannada),
+            "kn" | "kan" => Some(Self::Kannada),
             #[cfg(feature = "kurmanji")]
-            b"ku" => Some(Self::Kurmanji),
+            "ku" | "kur" | "kmr" => Some(Self::Kurmanji),
             #[cfg(feature = "latin")]
-            b"la" => Some(Self::Latin),
+            "la" | "lat" => Some(Self::Latin),
+            #[cfg(feature = "ligurian")]
+            "lij" => Some(Self::Ligurian),
             #[cfg(feature = "lithuanian")]
-            b"lt" => Some(Self::Lithuanian),
+            "lt" | "lit" => Some(Self::Lithuanian),
             #[cfg(feature = "malayalam")]
-            b"ml" => Some(Self::Malayalam),
+            "ml" | "mal" => Some(Self::Malayalam),
             #[cfg(feature = "marathi")]
-            b"mr" => Some(Self::Marathi),
+            "mr" | "mar" => Some(Self::Marathi),
             #[cfg(feature = "mongolian")]
-            b"mn" => Some(Self::Mongolian),
+            "mn" | "mon" | "khk" => Some(Self::Mongolian),
             #[cfg(feature = "norwegian")]
-            b"no" => Some(Self::Norwegian),
-            #[cfg(feature = "norwegian")]
-            b"nb" => Some(Self::Norwegian),
-            #[cfg(feature = "norwegian")]
-            b"nn" => Some(Self::Norwegian),
+            "no" | "nor" | "nb" | "nob" | "nn" | "nno" => Some(Self::Norwegian),
             #[cfg(feature = "oriya")]
-            b"or" => Some(Self::Oriya),
+            "or" | "ori" | "ory" => Some(Self::Oriya),
             #[cfg(feature = "panjabi")]
-            b"pa" => Some(Self::Panjabi),
+            "pa" | "pan" => Some(Self::Panjabi),
+            #[cfg(feature = "piedmontese")]
+            "pms" => Some(Self::Piedmontese),
             #[cfg(feature = "polish")]
-            b"pl" => Some(Self::Polish),
+            "pl" | "pol" => Some(Self::Polish),
             #[cfg(feature = "portuguese")]
-            b"pt" => Some(Self::Portuguese),
+            "pt" | "por" => Some(Self::Portuguese),
             #[cfg(feature = "russian")]
-            b"ru" => Some(Self::Russian),
+            "ru" | "rus" => Some(Self::Russian),
             #[cfg(feature = "sanskrit")]
-            b"sa" => Some(Self::Sanskrit),
+            "sa" | "san" | "cls" => Some(Self::Sanskrit),
             #[cfg(feature = "serbian")]
-            b"sr" => Some(Self::Serbian),
+            "sr" | "srp" => Some(Self::Serbian),
             #[cfg(feature = "slovak")]
-            b"sk" => Some(Self::Slovak),
+            "sk" | "slk" => Some(Self::Slovak),
             #[cfg(feature = "slovenian")]
-            b"sl" => Some(Self::Slovenian),
+            "sl" | "slv" => Some(Self::Slovenian),
             #[cfg(feature = "spanish")]
-            b"es" => Some(Self::Spanish),
+            "es" | "spa" => Some(Self::Spanish),
             #[cfg(feature = "swedish")]
-            b"sv" => Some(Self::Swedish),
+            "sv" | "swe" => Some(Self::Swedish),
             #[cfg(feature = "tamil")]
-            b"ta" => Some(Self::Tamil),
+            "ta" | "tam" => Some(Self::Tamil),
             #[cfg(feature = "telugu")]
-            b"te" => Some(Self::Telugu),
+            "te" | "tel" => Some(Self::Telugu),
             #[cfg(feature = "turkish")]
-            b"tr" => Some(Self::Turkish),
+            "tr" | "tur" => Some(Self::Turkish),
             #[cfg(feature = "turkmen")]
-            b"tk" => Some(Self::Turkmen),
+            "tk" | "tuk" => Some(Self::Turkmen),
             #[cfg(feature = "ukrainian")]
-            b"uk" => Some(Self::Ukrainian),
+            "uk" | "ukr" => Some(Self::Ukrainian),
             _ => None,
         }
     }
@@ -299,6 +317,8 @@ impl Lang {
             Self::Finnish => (2, 2),
             #[cfg(feature = "french")]
             Self::French => (2, 2),
+            #[cfg(feature = "friulian")]
+            Self::Friulian => (2, 2),
             #[cfg(feature = "galician")]
             Self::Galician => (2, 2),
             #[cfg(feature = "georgian")]
@@ -323,6 +343,8 @@ impl Lang {
             Self::Kurmanji => (2, 2),
             #[cfg(feature = "latin")]
             Self::Latin => (2, 2),
+            #[cfg(feature = "ligurian")]
+            Self::Ligurian => (2, 2),
             #[cfg(feature = "lithuanian")]
             Self::Lithuanian => (2, 2),
             #[cfg(feature = "malayalam")]
@@ -337,6 +359,8 @@ impl Lang {
             Self::Oriya => (2, 2),
             #[cfg(feature = "panjabi")]
             Self::Panjabi => (2, 2),
+            #[cfg(feature = "piedmontese")]
+            Self::Piedmontese => (2, 2),
             #[cfg(feature = "polish")]
             Self::Polish => (2, 2),
             #[cfg(feature = "portuguese")]
@@ -434,6 +458,8 @@ impl Lang {
             Self::Finnish => State::root(include_bytes!("../tries/fi.bin")),
             #[cfg(feature = "french")]
             Self::French => State::root(include_bytes!("../tries/fr.bin")),
+            #[cfg(feature = "friulian")]
+            Self::Friulian => State::root(include_bytes!("../tries/fur.bin")),
             #[cfg(feature = "galician")]
             Self::Galician => State::root(include_bytes!("../tries/gl.bin")),
             #[cfg(feature = "georgian")]
@@ -458,6 +484,8 @@ impl Lang {
             Self::Kurmanji => State::root(include_bytes!("../tries/ku.bin")),
             #[cfg(feature = "latin")]
             Self::Latin => State::root(include_bytes!("../tries/la.bin")),
+            #[cfg(feature = "ligurian")]
+            Self::Ligurian => State::root(include_bytes!("../tries/lij.bin")),
             #[cfg(feature = "lithuanian")]
             Self::Lithuanian => State::root(include_bytes!("../tries/lt.bin")),
             #[cfg(feature = "malayalam")]
@@ -472,6 +500,8 @@ impl Lang {
             Self::Oriya => State::root(include_bytes!("../tries/or.bin")),
             #[cfg(feature = "panjabi")]
             Self::Panjabi => State::root(include_bytes!("../tries/pa.bin")),
+            #[cfg(feature = "piedmontese")]
+            Self::Piedmontese => State::root(include_bytes!("../tries/pms.bin")),
             #[cfg(feature = "polish")]
             Self::Polish => State::root(include_bytes!("../tries/pl.bin")),
             #[cfg(feature = "portuguese")]

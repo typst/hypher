@@ -1,6 +1,6 @@
 [package]
 name = "hypher"
-version = "0.1.8"
+version = "0.1.9"
 rust-version = "1.64" # also change in ci.yml
 authors = ["Laurenz <laurmaedje@gmail.com>"]
 edition = "2021"
@@ -31,6 +31,7 @@ full = [
     "estonian",
     "finnish",
     "french",
+    "friulian",
     "galician",
     "georgian",
     "german",
@@ -43,6 +44,7 @@ full = [
     "kannada",
     "kurmanji",
     "latin",
+    "ligurian",
     "lithuanian",
     "malayalam",
     "marathi",
@@ -50,6 +52,7 @@ full = [
     "norwegian",
     "oriya",
     "panjabi",
+    "piedmontese",
     "polish",
     "portuguese",
     "russian",
@@ -80,6 +83,7 @@ english = []
 estonian = []
 finnish = []
 french = []
+friulian = []
 galician = []
 georgian = []
 german = []
@@ -92,6 +96,7 @@ italian = []
 kannada = []
 kurmanji = []
 latin = []
+ligurian = []
 lithuanian = []
 malayalam = []
 marathi = []
@@ -99,6 +104,7 @@ mongolian = []
 norwegian = []
 oriya = []
 panjabi = []
+piedmontese = []
 polish = []
 portuguese = []
 russian = []

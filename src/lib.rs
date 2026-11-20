@@ -466,6 +466,110 @@ mod tests {
     }
 
     #[test]
+    #[cfg(feature = "full")]
+    #[allow(deprecated)]
+    fn test_from_code_all_languages() {
+        let languages: &[(&[&str], Lang)] = &[
+            (&["af", "afr"], Afrikaans),
+            (&["sq", "sqi", "als"], Albanian),
+            (&["as", "asm"], Assamese),
+            (&["be", "bel"], Belarusian),
+            (&["bn", "ben"], Bengali),
+            (&["bg", "bul"], Bulgarian),
+            (&["ca", "cat"], Catalan),
+            (&["hr", "hrv"], Croatian),
+            (&["cs", "ces"], Czech),
+            (&["da", "dan"], Danish),
+            (&["nl", "nld"], Dutch),
+            (&["en", "eng"], English),
+            (&["et", "est", "ekk"], Estonian),
+            (&["fi", "fin"], Finnish),
+            (&["fr", "fra"], French),
+            (&["fur"], Friulian),
+            (&["gl", "glg"], Galician),
+            (&["ka", "kat"], Georgian),
+            (&["de", "deu"], German),
+            (&["el", "ell"], Greek),
+            (&["gu", "guj"], Gujarati),
+            (&["hi", "hin"], Hindi),
+            (&["hu", "hun"], Hungarian),
+            (&["is", "isl"], Icelandic),
+            (&["it", "ita"], Italian),
+            (&["kn", "kan"], Kannada),
+            (&["ku", "kur", "kmr"], Kurmanji),
+            (&["la", "lat"], Latin),
+            (&["lij"], Ligurian),
+            (&["lt", "lit"], Lithuanian),
+            (&["ml", "mal"], Malayalam),
+            (&["mr", "mar"], Marathi),
+            (&["mn", "mon", "khk"], Mongolian),
+            (&["no", "nor", "nb", "nob", "nn", "nno"], Norwegian),
+            (&["or", "ori", "ory"], Oriya),
+            (&["pa", "pan"], Panjabi),
+            (&["pms"], Piedmontese),
+            (&["pl", "pol"], Polish),
+            (&["pt", "por"], Portuguese),
+            (&["ru", "rus"], Russian),
+            (&["sa", "san", "cls"], Sanskrit),
+            (&["sr", "srp"], Serbian),
+            (&["sk", "slk"], Slovak),
+            (&["sl", "slv"], Slovenian),
+            (&["es", "spa"], Spanish),
+            (&["sv", "swe"], Swedish),
+            (&["ta", "tam"], Tamil),
+            (&["te", "tel"], Telugu),
+            (&["tr", "tur"], Turkish),
+            (&["tk", "tuk"], Turkmen),
+            (&["uk", "ukr"], Ukrainian),
+        ];
+        for &(codes, lang) in languages {
+            for &code in codes {
+                assert_eq!(Lang::from_code(code), Some(lang), "{code}");
+                if let Ok(code) = code.as_bytes().try_into() {
+                    assert_eq!(Lang::from_iso(code), Some(lang));
+                }
+            }
+        }
+    }
+
+    #[test]
+    #[cfg(feature = "english")]
+    fn test_from_code_english() {
+        assert_eq!(Lang::from_code("en"), Some(English));
+        assert_eq!(Lang::from_code("eng"), Some(English));
+    }
+
+    #[test]
+    #[cfg(not(feature = "english"))]
+    fn test_from_code_disabled() {
+        assert_eq!(Lang::from_code("en"), None);
+        assert_eq!(Lang::from_code("eng"), None);
+    }
+
+    #[test]
+    #[allow(deprecated)]
+    fn test_from_iso_compatibility() {
+        let expected = Lang::from_code("en");
+        assert_eq!(Lang::from_iso(*b"en"), expected);
+
+        let bytes: &[u8] = b"en";
+        let code = bytes.try_into().unwrap();
+        assert_eq!(Lang::from_iso(code), expected);
+        assert_eq!(bytes.try_into().ok().and_then(Lang::from_iso), expected);
+
+        for code in [*b"zz", *b"EN", [0xff, 0xff], [0xc3, 0xa9]] {
+            assert_eq!(Lang::from_iso(code), None);
+        }
+    }
+
+    #[test]
+    fn test_from_code_unknown() {
+        for code in ["", "e", "zz", "zzz", "english", "en-US", "EN", "ENG", "én"] {
+            assert_eq!(Lang::from_code(code), None, "{code}");
+        }
+    }
+
+    #[test]
     #[cfg(feature = "english")]
     fn test_empty() {
         let mut syllables = hyphenate("", English);
@@ -594,5 +698,27 @@ mod tests {
     fn test_hindi() {
         test(Hindi, "वि-द्या-र्थी");
         test(Hindi, "पढ़-ना");
+    }
+
+    #[test]
+    #[cfg(feature = "ligurian")]
+    fn test_ligurian() {
+        test(Ligurian, "ze-nei-se");
+        test(Ligurian, "spi-scioe-lâ-sea");
+        test(Ligurian, "con-çer-to");
+        test(Ligurian, "sper-len-gheu-ia");
+        test(Ligurian, "de-sccian-tou");
+    }
+
+    #[test]
+    #[cfg(feature = "piedmontese")]
+    fn test_piedmontese() {
+        test(Piedmontese, "pie-mon-tèis");
+    }
+
+    #[test]
+    #[cfg(feature = "friulian")]
+    fn test_friulian() {
+        test(Friulian, "fur-lan");
     }
 }
